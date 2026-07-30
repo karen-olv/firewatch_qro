@@ -1,0 +1,210 @@
+﻿Diagnose log at 2026-07-29T06:55:49Z
+
+AppPath: C:\Program Files\Git\mingw64\bin\git-credential-manager.exe
+InstallDir: C:\Program Files\Git\mingw64\bin\
+Version: 2.8.0+d5e8a3442d48cc5efe7014e093e44242c0bd395f
+
+------------
+Diagnostic: Environment
+Skipped: False
+Success: True
+Exception: None
+Log:
+OSType: Windows
+OSVersion: 10.0 (build 26200)
+Reading environment variables... OK
+ Variables:
+SESSIONNAME=Console
+ProgramFiles(x86)=C:\Program Files (x86)
+MSYSTEM=MINGW64
+ProgramW6432=C:\Program Files
+EFC_7240_2283032206=1
+PROCESSOR_IDENTIFIER=AMD64 Family 23 Model 17 Stepping 0, AuthenticAMD
+APPDATA=C:\Users\Diego\AppData\Roaming
+TMP=C:\Users\Diego\AppData\Local\Temp
+PROCESSOR_ARCHITECTURE=AMD64
+VSCODE_GIT_ASKPASS_MAIN=c:\Users\Diego\AppData\Roaming\Code\User\globalStorage\vscode.git\askpass\70789581cae28aa7\askpass-main.js
+Path=C:/Program Files/Git/mingw64/libexec/git-core;C:\Program Files\Git\mingw64\bin;C:\Program Files\Git\usr\bin;C:\Users\Diego\bin;c:\Users\Diego\.vscode\extensions\vadimcn.vscode-lldb-1.12.1\bin;c:\Users\Diego\AppData\Roaming\Code\User\globalStorage\github.copilot-chat\debugCommand;c:\Users\Diego\AppData\Roaming\Code\User\globalStorage\github.copilot-chat\copilotCli;C:\Users\Diego\AppData\Roaming\Code\User\globalStorage\pleiades.java-extension-pack-jdk\gradle\latest\bin;C:\Users\Diego\AppData\Roaming\Code\User\globalStorage\pleiades.java-extension-pack-jdk\maven\latest\bin;C:\Users\Diego\AppData\Roaming\Code\User\globalStorage\pleiades.java-extension-pack-jdk\java\latest\bin;C:\WINDOWS\system32;C:\WINDOWS;C:\WINDOWS\System32\Wbem;C:\WINDOWS\System32\WindowsPowerShell\v1.0\;C:\WINDOWS\System32\OpenSSH\;C:\Program Files\Git\cmd;C:\Users\Diego\AppData\Local\nvm;C:\nvm4w\nodejs;C:\Program Files\Docker\Docker\resources\bin;C:\Users\Diego\AppData\Local\Programs\Python\Python313\Scripts\;C:\Users\Diego\AppData\Local\Programs\Python\Python313\;C:\Users\Diego\AppData\Local\Programs\Python\Python315\Scripts\;C:\Users\Diego\AppData\Local\Programs\Python\Python315\;C:\Users\Diego\.local\bin;C:\Users\Diego\AppData\Local\Microsoft\WindowsApps;C:\Users\Diego\AppData\Local\Programs\Microsoft VS Code\bin;C:\Users\Diego\AppData\Roaming\npm;C:\Users\Diego\AppData\Local\nvm;C:\nvm4w\nodejs;C:\Users\Diego\AppData\Local\GitHubDesktop\bin;c:\Users\Diego\.vscode\extensions\ms-python.debugpy-2026.6.0-win32-x64\bundled\scripts\noConfigScripts;C:\Users\Diego\.console-ninja\.bin
+USERPROFILE=C:\Users\Diego
+VSCODE_GIT_IPC_HANDLE=\\.\pipe\vscode-git-fd3518b347-sock
+PROCESSOR_REVISION=1100
+TMPDIR=C:\Users\Diego\AppData\Local\Temp
+TEMP=C:\Users\Diego\AppData\Local\Temp
+FPS_BROWSER_APP_PROFILE_STRING=Internet Explorer
+FPS_BROWSER_USER_PROFILE_STRING=Default
+LOGONSERVER=\\DESKTOP-FU4T9NU
+TERM=xterm-256color
+PYDEVD_DISABLE_FILE_VALIDATION=1
+USERNAME=Diego
+SystemRoot=C:\WINDOWS
+VSCODE_DEBUGPY_ADAPTER_ENDPOINTS=c:\Users\Diego\.vscode\extensions\ms-python.debugpy-2026.6.0-win32-x64\.noConfigDebugAdapterEndpoints\endpoint-343e1948286dd275.txt
+EFC_7240_2775293581=1
+GIT_EXEC_PATH=C:/Program Files/Git/mingw64/libexec/git-core
+PLINK_PROTOCOL=ssh
+CODELLDB_LAUNCH_CONNECT_FILE=c:\Users\Diego\AppData\Roaming\Code\User\workspaceStorage\eff851cc8975662004881ccc00e529df\vadimcn.vscode-lldb\rpcaddress.txt
+OneDrive=C:\Users\Diego\OneDrive
+VBOX_MSI_INSTALL_PATH=C:\Program Files\Oracle\VirtualBox\
+VSCODE_NONCE=a68f56af-f30c-4784-816d-93ea5d494691
+CommonProgramFiles(x86)=C:\Program Files (x86)\Common Files
+EFC_7240_1592913036=1
+EFC_7240_3789132940=1
+PYTHON_BASIC_REPL=1
+ProgramData=C:\ProgramData
+LANG=es_ES.UTF-8
+GIT_ASKPASS=c:\Users\Diego\AppData\Roaming\Code\User\globalStorage\vscode.git\askpass\70789581cae28aa7\askpass.sh
+HOMEPATH=\Users\Diego
+COMPUTERNAME=DESKTOP-FU4T9NU
+PYTHONSTARTUP=c:\Users\Diego\AppData\Roaming\Code\User\workspaceStorage\eff851cc8975662004881ccc00e529df\ms-python.python\pythonrc.py
+BUNDLED_DEBUGPY_PATH=c:\Users\Diego\.vscode\extensions\ms-python.debugpy-2026.6.0-win32-x64\bundled\libs\debugpy
+ALLUSERSPROFILE=C:\ProgramData
+CommonProgramW6432=C:\Program Files\Common Files
+COPILOT_DEBUG_NONCE=099692c4457c76d9416f70e9abc0d302
+NVM_HOME=C:\Users\Diego\AppData\Local\nvm
+DriverData=C:\Windows\System32\Drivers\DriverData
+HOMEDRIVE=C:
+windir=C:\WINDOWS
+GIT_TRACE2_PARENT_SID=8e35c0e8-c6a1-47c8-88e7-133dab5af726
+SystemDrive=C:
+NUMBER_OF_PROCESSORS=4
+OS=Windows_NT
+ProgramFiles=C:\Program Files
+ComSpec=C:\WINDOWS\system32\cmd.exe
+PATHEXT=.COM;.EXE;.BAT;.CMD;.VBS;.VBE;.JS;.JSE;.WSF;.WSH;.MSC
+HOME=C:\Users\Diego
+PSModulePath=C:\Program Files\WindowsPowerShell\Modules;C:\WINDOWS\system32\WindowsPowerShell\v1.0\Modules
+JAVA_HOME=C:\Users\Diego\AppData\Roaming\Code\User\globalStorage\pleiades.java-extension-pack-jdk\java\latest
+PROMPT=$P$G
+NVM_SYMLINK=C:\nvm4w\nodejs
+EFC_7240_1262719628=1
+USERDOMAIN=DESKTOP-FU4T9NU
+PROCESSOR_LEVEL=23
+EFC_7240_4126798990=1
+LOCALAPPDATA=C:\Users\Diego\AppData\Local
+VSCODE_GIT_ASKPASS_NODE=C:\Users\Diego\AppData\Local\Programs\Microsoft VS Code\Code.exe
+JAVA_TOOL_OPTIONS=-Dstdout.encoding=UTF-8 -Dstderr.encoding=UTF-8
+CHROME_CRASHPAD_PIPE_NAME=\\.\pipe\crashpad_11000_PVTELUUPYNIIWRDY
+TERM_PROGRAM_VERSION=1.130.0
+USERDOMAIN_ROAMINGPROFILE=DESKTOP-FU4T9NU
+COLORTERM=truecolor
+PUBLIC=C:\Users\Public
+TERM_PROGRAM=vscode
+VSCODE_GIT_ASKPASS_EXTRA_ARGS=
+CommonProgramFiles=C:\Program Files\Common Files
+
+
+------------
+Diagnostic: File system
+Skipped: False
+Success: True
+Exception: None
+Log:
+Temporary directory is 'C:\Users\Diego\AppData\Local\Temp\'...
+Checking basic file I/O...
+Writing to temporary file 'C:\Users\Diego\AppData\Local\Temp\83e74dedbc029578129e6f36'... OK
+Reading from temporary file 'C:\Users\Diego\AppData\Local\Temp\83e74dedbc029578129e6f36'... OK
+Deleting temporary file 'C:\Users\Diego\AppData\Local\Temp\83e74dedbc029578129e6f36'... OK
+Testing IFileSystem instance...
+UserHomePath: C:\Users\Diego
+UserDataDirectoryPath: C:\Users\Diego\.gcm
+GetCurrentDirectory(): C:\Users\Diego\Documents\GitHub\firewatch_qro
+
+------------
+Diagnostic: Networking
+Skipped: False
+Success: True
+Exception: None
+Log:
+Checking networking and HTTP stack...
+Creating HTTP client... OK
+IsNetworkAvailable: True
+Sending HEAD request to http://example.com... OK
+Sending HEAD request to https://example.com... OK
+Acquiring free TCP port... OK
+Testing local HTTP loopback connections...
+Creating new HTTP listener for http://localhost:64512/... OK
+Waiting for loopback connection... OK
+Writing response... OK
+Waiting for response data... OK
+Loopback connection data OK
+
+------------
+Diagnostic: Git
+Skipped: False
+Success: True
+Exception: None
+Log:
+Getting Git version... OK
+Git version is '2.55.0.windows.2'
+Locating current repository...Git repository at 'C:/Users/Diego/Documents/GitHub/firewatch_qro/.git'
+ OK
+Listing all Git configuration... OK
+Git configuration:
+file:C:/Program Files/Git/etc/gitconfig	diff.astextplain.textconv=astextplain
+file:C:/Program Files/Git/etc/gitconfig	filter.lfs.clean=git-lfs clean -- %f
+file:C:/Program Files/Git/etc/gitconfig	filter.lfs.smudge=git-lfs smudge -- %f
+file:C:/Program Files/Git/etc/gitconfig	filter.lfs.process=git-lfs filter-process
+file:C:/Program Files/Git/etc/gitconfig	filter.lfs.required=true
+file:C:/Program Files/Git/etc/gitconfig	http.sslbackend=schannel
+file:C:/Program Files/Git/etc/gitconfig	core.autocrlf=true
+file:C:/Program Files/Git/etc/gitconfig	core.fscache=true
+file:C:/Program Files/Git/etc/gitconfig	core.symlinks=false
+file:C:/Program Files/Git/etc/gitconfig	pull.rebase=false
+file:C:/Program Files/Git/etc/gitconfig	credential.helper=manager
+file:C:/Program Files/Git/etc/gitconfig	credential.https://dev.azure.com.usehttppath=true
+file:C:/Program Files/Git/etc/gitconfig	init.defaultbranch=master
+file:C:/Users/Diego/.gitconfig	user.name=123457052RGd
+file:C:/Users/Diego/.gitconfig	user.email=123047921@upq.edu.mx
+file:C:/Users/Diego/.gitconfig	filter.lfs.required=true
+file:C:/Users/Diego/.gitconfig	filter.lfs.clean=git-lfs clean -- %f
+file:C:/Users/Diego/.gitconfig	filter.lfs.smudge=git-lfs smudge -- %f
+file:C:/Users/Diego/.gitconfig	filter.lfs.process=git-lfs filter-process
+file:.git/config	core.repositoryformatversion=0
+file:.git/config	core.filemode=false
+file:.git/config	core.bare=false
+file:.git/config	core.logallrefupdates=true
+file:.git/config	core.symlinks=false
+file:.git/config	core.ignorecase=true
+file:.git/config	submodule.active=.
+file:.git/config	remote.origin.url=https://github.com/karen-olv/firewatch_qro.git
+file:.git/config	remote.origin.fetch=+refs/heads/*:refs/remotes/origin/*
+file:.git/config	branch.main.remote=origin
+file:.git/config	branch.main.merge=refs/heads/main
+file:.git/config	branch.main.vscode-merge-base=origin/main
+file:.git/config	lfs.repositoryformatversion=0
+
+
+------------
+Diagnostic: Credential storage
+Skipped: False
+Success: True
+Exception: None
+Log:
+ICredentialStore instance is of type: CredentialStore
+Writing test credential... OK
+Reading test credential... OK
+Deleting test credential... OK
+
+------------
+Diagnostic: Microsoft authentication (AAD/MSA)
+Skipped: False
+Success: True
+Exception: None
+Log:
+Broker is not enabled.
+Flow type is: Auto
+Gathering MSAL token cache data... OK
+CacheDirectory: C:\Users\Diego\AppData\Local\.IdentityService
+CacheFileName: msal.cache
+CacheFilePath: C:\Users\Diego\AppData\Local\.IdentityService\msal.cache
+Creating cache helper... OK
+Verifying MSAL token cache persistence... OK
+
+------------
+Diagnostic: GitHub API
+Skipped: False
+Success: True
+Exception: None
+Log:
+Using 'https://github.com/' as API target.
+Querying '/meta' endpoint... OK
+

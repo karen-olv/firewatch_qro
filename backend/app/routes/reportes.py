@@ -1,6 +1,8 @@
 from flask import Blueprint, request, jsonify
 from app.extensions import db
-from app.models import Reporte
+# <-- Aquí ya importamos Zona para que no marque rojo
+from app.models import Reporte, Zona
+from datetime import datetime         # <-- Aquí ya importamos datetime
 
 bp = Blueprint("reportes", __name__, url_prefix="/api/reportes")
 
@@ -20,15 +22,32 @@ def crear_reporte():
     """Este endpoint lo usa la app móvil cuando un ciudadano manda un reporte."""
     data = request.get_json(force=True)
 
+    # 1. Validar que mandaron los datos mínimos obligatorios
+    if not data or not data.get('zona_id') or not data.get('descripcion'):
+        return jsonify(
+            {"error": "Faltan datos obligatorios (zona_id, descripcion)"}
+        ), 400
+
+    # 2. Validar que la zona_id realmente exista en tu BD
+    zona_existe = Zona.query.get(data.get('zona_id'))
+    if not zona_existe:
+        return jsonify({"error": f"La zona con ID {data.get('zona_id')} no exist."}), 404
+
+    # 3. Crear el registro
     reporte = Reporte(
-        nombre_reportante=data.get("nombre_reportante", "Anónimo"),
+        nombre_reportante=data.get(
+            "nombre_reportante", data.get("nombre", "Anónimo")),
         zona_id=data.get("zona_id"),
         descripcion=data.get("descripcion"),
         es_critico=data.get("es_critico", False),
         validado=False,
+        fecha=datetime.utcnow()
     )
+
     db.session.add(reporte)
     db.session.commit()
+
+    # Usamos tu to_dict() que está mucho más limpio
     return jsonify(reporte.to_dict()), 201
 
 
