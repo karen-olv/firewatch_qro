@@ -1,5 +1,6 @@
 from flask import Flask, jsonify
 from flask_cors import CORS
+from prometheus_flask_exporter import PrometheusMetrics
 
 from app.config import Config
 from app.extensions import db, jwt
@@ -25,6 +26,7 @@ def create_app():
     db.init_app(app)
     jwt.init_app(app)
 
+<<<<<<< HEAD
     # 3. Importación y registro de Blueprints
     from app.routes import (
         incendios,
@@ -34,6 +36,13 @@ def create_app():
         auth,
         usuarios
     )
+=======
+    # Expone métricas en /metrics: total de requests, duración, códigos de estado, etc.
+    metrics = PrometheusMetrics(app, group_by="endpoint")
+    metrics.info("firewatch_api_info", "Información de la API FireWatch QRO", version="1.0.0")
+
+    from app.routes import incendios, reportes, alertas, estadisticas, auth, usuarios
+>>>>>>> 5d95ac4 (Agrega monitoreo con Prometheus y Grafana)
 
     app.register_blueprint(incendios.bp)
     app.register_blueprint(reportes.bp)
@@ -42,6 +51,7 @@ def create_app():
     app.register_blueprint(auth.bp)
     app.register_blueprint(usuarios.bp)
 
+<<<<<<< HEAD
     # 4. Rutas base de prueba
     @app.get("/")
     def inicio():
@@ -55,5 +65,10 @@ def create_app():
             "status": "ok",
             "servicio": "FireWatch QRO API"
         })
+=======
+    @app.get("/api/health")
+    def health():
+        return jsonify({"status": "ok", "servicio": "FireWatch QRO API"})
+>>>>>>> 5d95ac4 (Agrega monitoreo con Prometheus y Grafana)
 
     return app
