@@ -9,6 +9,21 @@ bp = Blueprint("reportes", __name__, url_prefix="/api/reportes")
 
 @bp.get("")
 def listar_reportes():
+    """
+    Listar reportes ciudadanos (máximo 50, más recientes primero).
+    ---
+    tags:
+      - Reportes
+    parameters:
+      - name: validado
+        in: query
+        type: boolean
+        required: false
+        description: Filtrar por validado (true/false)
+    responses:
+      200:
+        description: Lista de reportes
+    """
     validado = request.args.get("validado")  # "true" | "false"
     query = Reporte.query
     if validado is not None:
@@ -19,7 +34,40 @@ def listar_reportes():
 
 @bp.post("")
 def crear_reporte():
-    """Este endpoint lo usa la app móvil cuando un ciudadano manda un reporte."""
+    """
+    Crear un reporte ciudadano.
+    ---
+    tags:
+      - Reportes
+    parameters:
+      - in: body
+        name: body
+        required: true
+        schema:
+          type: object
+          required:
+            - zona_id
+            - descripcion
+          properties:
+            nombre_reportante:
+              type: string
+              default: Anónimo
+            zona_id:
+              type: integer
+              example: 1
+            descripcion:
+              type: string
+            es_critico:
+              type: boolean
+              default: false
+    responses:
+      201:
+        description: Reporte creado
+      400:
+        description: Faltan datos obligatorios
+      404:
+        description: Zona no encontrada
+    """
     data = request.get_json(force=True)
 
     # 1. Validar que mandaron los datos mínimos obligatorios
@@ -53,7 +101,23 @@ def crear_reporte():
 
 @bp.patch("/<int:reporte_id>/validar")
 def validar_reporte(reporte_id):
-    """Protección Civil marca un reporte como validado desde el dashboard."""
+    """
+    Marcar un reporte como validado (Protección Civil).
+    ---
+    tags:
+      - Reportes
+    parameters:
+      - name: reporte_id
+        in: path
+        type: integer
+        required: true
+        description: ID del reporte a validar
+    responses:
+      200:
+        description: Reporte validado
+      404:
+        description: Reporte no encontrado
+    """
     reporte = Reporte.query.get_or_404(reporte_id)
     reporte.validado = True
     db.session.commit()

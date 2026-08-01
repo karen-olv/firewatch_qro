@@ -1,7 +1,11 @@
+import os
 from app import create_app
 
 app = create_app()
 
-if __name__ == '__main__':
-    # host="0.0.0.0" expone la API a tu red local (192.168.100.99)
-    app.run(host="0.0.0.0", port=5000, debug=True)
+if __name__ == "__main__":
+    app.run(
+        host="0.0.0.0",
+        port=int(os.getenv("FLASK_PORT", 5000)),
+        debug=os.getenv("FLASK_DEBUG", "1").lower() in ("1", "true", "yes"),
+    )

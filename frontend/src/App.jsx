@@ -6,6 +6,7 @@ import {
 import {
   Flame, MapPinned, ClipboardList, BarChart3, Users, Settings,
   ShieldAlert, CircleDot, Clock, Radio, ChevronRight, Loader2,
+  LogOut, Mail, Lock,
 } from "lucide-react";
 import { api } from "./api";
 import "./App.css";
@@ -33,6 +34,20 @@ function proyectar(lat, lng) {
 export default function App() {
   const [active, setActive] = useState("dashboard");
   const [range, setRange] = useState("1A");
+
+  // Auth
+  const [token, setToken] = useState(() => localStorage.getItem("fw_token"));
+  const [usuario, setUsuario] = useState(() => {
+    try {
+      return JSON.parse(localStorage.getItem("fw_usuario") || "null");
+    } catch {
+      return null;
+    }
+  });
+  const [loginEmail, setLoginEmail] = useState("");
+  const [loginPass, setLoginPass] = useState("");
+  const [loginError, setLoginError] = useState(null);
+  const [loginCargando, setLoginCargando] = useState(false);
 
   const [resumen, setResumen] = useState(null);
   const [topMunicipios, setTopMunicipios] = useState([]);
@@ -66,14 +81,89 @@ export default function App() {
   }, []);
 
   useEffect(() => {
+    if (!token) return;
     cargarTodo();
     const intervalo = setInterval(cargarTodo, 30000); // refresca cada 30s
     return () => clearInterval(intervalo);
-  }, [cargarTodo]);
+  }, [cargarTodo, token]);
 
   useEffect(() => {
+    if (!token) return;
     api.tendencia(RANGES[range]).then(setTendencia).catch((e) => setError(e.message));
-  }, [range]);
+  }, [range, token]);
+
+  const iniciarSesion = async (e) => {
+    e.preventDefault();
+    setLoginError(null);
+    setLoginCargando(true);
+    try {
+      const data = await api.login(loginEmail, loginPass);
+      localStorage.setItem("fw_token", data.access_token);
+      localStorage.setItem("fw_usuario", JSON.stringify(data.usuario));
+      setToken(data.access_token);
+      setUsuario(data.usuario);
+    } catch (err) {
+      setLoginError(err.message);
+    } finally {
+      setLoginCargando(false);
+    }
+  };
+
+  const cerrarSesion = () => {
+    localStorage.removeItem("fw_token");
+    localStorage.removeItem("fw_usuario");
+    setToken(null);
+    setUsuario(null);
+  };
+
+  if (!token) {
+    return (
+      <div className="fw-root fw-login-root">
+        <form className="fw-login-card" onSubmit={iniciarSesion}>
+          <div className="fw-login-logo">
+            <div className="fw-brand-mark"><Flame size={20} color="#14160F" /></div>
+          </div>
+          <div className="fw-login-title">FireWatch QRO</div>
+          <div className="fw-login-sub">Panel de Protección Civil · Inicia sesión</div>
+
+          <label className="fw-login-label">Correo electrónico</label>
+          <div className="fw-login-field">
+            <Mail size={15} />
+            <input
+              type="email"
+              placeholder="admin@example.mx"
+              value={loginEmail}
+              onChange={(e) => setLoginEmail(e.target.value)}
+              required
+            />
+          </div>
+
+          <label className="fw-login-label">Contraseña</label>
+          <div className="fw-login-field">
+            <Lock size={15} />
+            <input
+              type="password"
+              placeholder="••••••••"
+              value={loginPass}
+              onChange={(e) => setLoginPass(e.target.value)}
+              required
+            />
+          </div>
+
+          {loginError && <div className="fw-login-error">{loginError}</div>}
+
+          <button type="submit" className="fw-login-btn" disabled={loginCargando}>
+            {loginCargando ? <Loader2 size={16} className="fw-spin" /> : <LogOut size={16} />}
+            {loginCargando ? "Ingresando…" : "Entrar al panel"}
+          </button>
+
+          <div className="fw-login-hint fw-mono">
+            Demo: admin@firewatchqro.mx / admin123
+          </div>
+        </form>
+      </div>
+    );
+  }
 
   if (cargando) {
     return (
@@ -129,10 +219,15 @@ export default function App() {
             <div className="fw-title">Panel de monitoreo</div>
             <div className="fw-title-sub fw-mono">Querétaro, MX · {new Date().toLocaleString("es-MX")}</div>
           </div>
-          <div className="fw-admin-chip">
-            <div className="fw-avatar">PC</div>
-            Protección Civil Querétaro
-            <ChevronRight size={13} />
+          <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
+            <div className="fw-admin-chip">
+              <div className="fw-avatar">{usuario?.nombre?.slice(0, 2).toUpperCase() || "PC"}</div>
+              {usuario?.nombre || "Protección Civil Querétaro"}
+              <ChevronRight size={13} />
+            </div>
+            <button className="fw-admin-btn" onClick={cerrarSesion} title="Cerrar sesión">
+              <LogOut size={13} /> Salir
+            </button>
           </div>
         </div>
 

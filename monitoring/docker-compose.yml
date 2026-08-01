@@ -1,5 +1,3 @@
-version: "3.8"
-
 services:
   prometheus:
     image: prom/prometheus:latest
@@ -31,7 +29,9 @@ services:
     image: prom/mysqld-exporter:latest
     container_name: firewatch_mysqld_exporter
     environment:
-      - DATA_SOURCE_NAME=exporter:exporter_pass@(host.docker.internal:3306)/
+      # MySQL está expuesto en el host en el puerto 3307
+      # (definido en el docker-compose.yml raíz del proyecto).
+      - DATA_SOURCE_NAME=exporter:exporter_pass@(host.docker.internal:3307)/
     extra_hosts:
       - "host.docker.internal:host-gateway"
     ports:
@@ -40,3 +40,4 @@ services:
 
 volumes:
   grafana_data:
+

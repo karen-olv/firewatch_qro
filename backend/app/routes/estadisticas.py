@@ -9,15 +9,40 @@ bp = Blueprint("estadisticas", __name__, url_prefix="/api")
 
 @bp.get("/municipios")
 def listar_municipios():
+    """
+    Listar municipios de Querétaro.
+    ---
+    tags:
+- Estadísticas
+    responses:
+200:
+        description: Lista de municipios
+    """
     municipios = Municipio.query.order_by(Municipio.nombre).all()
     return jsonify([m.to_dict() for m in municipios])
 
 
 @bp.get("/estadisticas/top-municipios")
 def top_municipios():
-    """Municipios con más incendios registrados (histórico)."""
+    """
+    Municipios con más incendios registrados (histórico).
+    ---
+    tags:
+Estadísticas
+    parameters:
+- name: limit
+        in: query
+        type: integer
+        required: false
+        default: 6
+        description: Número máximo de municipios a devolver
+    responses:
+200:
+        description: Ranking de municipios por incendios
+    """
     resultados = (
-        db.session.query(Municipio.nombre, func.count(Incendio.id).label("incendios"))
+        db.session.query(Municipio.nombre, func.count(
+            Incendio.id).label("incendios"))
         .join(Zona, Zona.municipio_id == Municipio.id)
         .join(Incendio, Incendio.zona_id == Zona.id)
         .group_by(Municipio.nombre)
@@ -31,15 +56,28 @@ def top_municipios():
 @bp.get("/estadisticas/tendencia")
 def tendencia_incendios():
     """
-    Serie de incendios agrupados por mes, para graficar tendencia.
-    Parámetro ?meses=3 controla cuántos meses hacia atrás se consultan.
+    Serie de incendios agrupados por mes para graficar tendencia.
+    ---
+    tags:
+- Estadísticas
+    parameters:
+- name: meses
+        in: query
+        type: integer
+        required: false
+        default: 12
+        description: Cuántos meses hacia atrás se consultan
+    responses:
+200:
+        description: Serie de incendios por periodo (YYYY-MM)
     """
     meses = int(request.args.get("meses", 12))
     desde = datetime.utcnow() - timedelta(days=meses * 30)
 
     resultados = (
         db.session.query(
-            func.date_format(Incendio.fecha_deteccion, "%Y-%m").label("periodo"),
+            func.date_format(Incendio.fecha_deteccion,
+                             "%Y-%m").label("periodo"),
             func.count(Incendio.id).label("incendios"),
         )
         .filter(Incendio.fecha_deteccion >= desde)
@@ -52,11 +90,21 @@ def tendencia_incendios():
 
 @bp.get("/estadisticas/resumen")
 def resumen_kpis():
-    """Los 4 KPIs que se muestran arriba del dashboard."""
+    """
+    KPIs principales del dashboard.
+    ---
+    tags:
+- Estadísticas
+    responses:
+200:
+        description: Resumen con incendios activos, riesgo alto, zonas y municipios
+    """
     incendios_activos = Incendio.query.filter_by(estado="activo").count()
-    incendios_alto_riesgo = Incendio.query.filter_by(estado="activo", nivel_riesgo="alto").count()
+    incendios_alto_riesgo = Incendio.query.filter_by(
+        estado="activo", nivel_riesgo="alto").count()
     zonas_monitoreadas = Zona.query.count()
-    municipios_con_zonas = db.session.query(Zona.municipio_id).distinct().count()
+    municipios_con_zonas = db.session.query(
+        Zona.municipio_id).distinct().count()
 
     return jsonify({
         "incendios_activos": incendios_activos,

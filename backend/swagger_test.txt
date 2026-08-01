@@ -1,0 +1,3 @@
+GET /docs status: 200
+True swagger-ui
+GET / status: 200

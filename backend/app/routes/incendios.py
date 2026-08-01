@@ -8,6 +8,21 @@ bp = Blueprint("incendios", __name__, url_prefix="/api/incendios")
 
 @bp.get("")
 def obtener_incendios():
+    """
+    Obtener lista de incendios registrados.
+    ---
+    tags:
+      - Incendios
+    parameters:
+      - name: estado
+        in: query
+        type: string
+        required: false
+        description: Filtrar por estado (activo, contenido, controlado)
+    responses:
+      200:
+        description: Lista de incendios
+    """
     estado = request.args.get('estado')
     query = Incendio.query
 
@@ -20,7 +35,44 @@ def obtener_incendios():
 
 @bp.post("")
 def crear_incendio():
-    """Endpoint para que la app móvil registre nuevos incendios validados"""
+    """
+    Registrar un nuevo incendio validado (usado por la app móvil).
+    ---
+    tags:
+      - Incendios
+    parameters:
+      - in: body
+        name: body
+        required: true
+        schema:
+          type: object
+          required:
+            - zona_id
+          properties:
+            zona_id:
+              type: integer
+              example: 1
+            nivel_riesgo:
+              type: string
+              enum: [bajo, medio, alto]
+              default: bajo
+            estado:
+              type: string
+              enum: [activo, contenido, controlado]
+              default: activo
+            descripcion:
+              type: string
+            fuente:
+              type: string
+              default: app_movil
+    responses:
+      201:
+        description: Incendio creado
+      400:
+        description: Datos inválidos
+      404:
+        description: Zona no encontrada
+    """
     data = request.get_json(force=True)
 
     # 1. Validaciones de que la zona exista

@@ -1,0 +1,3 @@
+firewatch_api: Up 9 minutes
+firewatch_db: Up 10 minutes (healthy)
+determined_curie: Up 5 hours

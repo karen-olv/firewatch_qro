@@ -1,0 +1,40 @@
+services:
+  db:
+    image: mysql:8.0
+    container_name: firewatch_db
+    restart: always
+    environment:
+      MYSQL_ROOT_PASSWORD: rootpassword
+      MYSQL_DATABASE: firewatch_qro
+      MYSQL_USER: firewatch_user
+      MYSQL_PASSWORD: firewatch_pass
+    ports:
+      - "3307:3306"
+    volumes:
+      - mysql_data:/var/lib/mysql
+      - ./db/init.sql:/docker-entrypoint-initdb.d/init.sql:ro
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-uroot", "-prootpassword"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+      start_period: 30s
+
+  backend:
+    build: ./backend
+    container_name: firewatch_api
+    restart: always
+    ports:
+      - "5000:5000"
+    environment:
+      DATABASE_URL: mysql+pymysql://firewatch_user:firewatch_pass@db:3306/firewatch_qro
+      JWT_SECRET_KEY: cambia-esta-clave-jwt-por-otra-propia
+      SECRET_KEY: clave-super-secreta-firewatch-2026
+      FLASK_DEBUG: "0"
+    depends_on:
+      db:
+        condition: service_healthy
+
+volumes:
+  mysql_data:
+

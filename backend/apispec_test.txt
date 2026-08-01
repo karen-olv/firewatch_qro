@@ -1,0 +1,13 @@
+Total paths: 12
+/api/alertas
+/api/auth/login
+/api/auth/perfil
+/api/auth/registro
+/api/estadisticas/resumen
+/api/estadisticas/tendencia
+/api/estadisticas/top-municipios
+/api/incendios
+/api/municipios
+/api/reportes
+/api/reportes/{reporte_id}/validar
+/api/usuarios
