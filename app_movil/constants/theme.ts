@@ -1,41 +1,49 @@
 /**
- * Below are the colors that are used in the app. The colors are defined in the light and dark mode.
- * There are many other ways to style your app. For example, [Nativewind](https://www.nativewind.dev/), [Tamagui](https://tamagui.dev/), [unistyles](https://reactnativeunistyles.vercel.app), etc.
+ * FireWatch QRO - Tema profesional (combina con el dashboard web).
  */
 
 import { Platform } from 'react-native';
 
-const tintColorLight = '#0a7ea4';
-const tintColorDark = '#fff';
-
 export const Colors = {
   light: {
-    text: '#11181C',
-    background: '#fff',
-    tint: tintColorLight,
+    text: '#1B2016',
+    background: '#F5F2EC',
+    tint: '#C7361B',
     icon: '#687076',
-    tabIconDefault: '#687076',
-    tabIconSelected: tintColorLight,
+    tabIconDefault: '#8F9680',
+    tabIconSelected: '#C7361B',
+    card: '#FFFFFF',
+    border: '#D8D3C8',
+    muted: '#6B7280',
+    primary: '#C7361B',
+    secondary: '#FF6A3D',
+    danger: '#C7361B',
+    success: '#2E7D32',
+    warning: '#B45309',
   },
   dark: {
-    text: '#ECEDEE',
-    background: '#151718',
-    tint: tintColorDark,
+    text: '#E6EDF3',
+    background: '#0B1D33',
+    tint: '#FF6A3D',
     icon: '#9BA1A6',
-    tabIconDefault: '#9BA1A6',
-    tabIconSelected: tintColorDark,
+    tabIconDefault: '#5C6B7A',
+    tabIconSelected: '#FF6A3D',
+    card: '#122A47',
+    border: '#1F3A5F',
+    muted: '#9DB1C7',
+    primary: '#FF6A3D',
+    secondary: '#F97316',
+    danger: '#EF4444',
+    success: '#4ADE80',
+    warning: '#FBBF24',
   },
 };
 
 export const Fonts = Platform.select({
   ios: {
-    /** iOS `UIFontDescriptorSystemDesignDefault` */
     sans: 'system-ui',
-    /** iOS `UIFontDescriptorSystemDesignSerif` */
     serif: 'ui-serif',
-    /** iOS `UIFontDescriptorSystemDesignRounded` */
     rounded: 'ui-rounded',
-    /** iOS `UIFontDescriptorSystemDesignMonospaced` */
     mono: 'ui-monospace',
   },
   default: {
@@ -51,3 +59,4 @@ export const Fonts = Platform.select({
     mono: "SFMono-Regular, Menlo, Monaco, Consolas, 'Liberation Mono', 'Courier New', monospace",
   },
 });
+

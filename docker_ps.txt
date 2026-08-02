@@ -1,0 +1,20 @@
+NAMES                         IMAGE                             PORTS
+trusting_kowalevski           miapi-api:latest                  5000/tcp
+api3                          firewatch_qro-api3                0.0.0.0:8003->5000/tcp, [::]:8003->5000/tcp
+flask1                        firewatch_qro-flask1              0.0.0.0:5001->5001/tcp, [::]:5001->5001/tcp
+api2                          firewatch_qro-api2                0.0.0.0:8002->5000/tcp, [::]:8002->5000/tcp
+api1                          firewatch_qro-api1                0.0.0.0:8001->5000/tcp, [::]:8001->5000/tcp
+flask2                        firewatch_qro-flask2              0.0.0.0:5002->5002/tcp, [::]:5002->5002/tcp
+firewatch_firewall_exporter   firewatch_qro-firewall-exporter   
+firewatch_node_exporter       prom/node-exporter:v1.7.0         9100/tcp
+firewatch_mysqld_exporter     prom/mysqld-exporter:v0.15.1      9104/tcp
+firewatch_haproxy             haproxy:2.9-alpine                0.0.0.0:80->80/tcp, [::]:80->80/tcp, 0.0.0.0:443->443/tcp, [::]:443->443/tcp, 0.0.0.0:8080->8080/tcp, [::]:8080->8080/tcp, 0.0.0.0:8404-8405->8404-8405/tcp, [::]:8404-8405->8404-8405/tcp
+firewatch_redis_exporter      oliver006/redis_exporter:latest   9121/tcp
+firewatch_grafana             grafana/grafana:latest            3000/tcp
+firewatch_redis               redis:7-alpine                    6379/tcp
+firewatch_prometheus          prom/prometheus:latest            0.0.0.0:9090->9090/tcp, [::]:9090->9090/tcp
+firewatch_frontend            firewatch_qro-frontend            80/tcp
+firewatch_db                  mysql:8.0                         3306/tcp, 33060/tcp
+firewatch_cadvisor            gcr.io/cadvisor/cadvisor:latest   8080/tcp
+ServerAPI                     miapi-api                         0.0.0.0:5000->5000/tcp, [::]:5000->5000/tcp
+ServerBD                      postgres:15                       0.0.0.0:5434->5432/tcp, [::]:5434->5432/tcp

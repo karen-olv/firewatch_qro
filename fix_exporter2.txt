@@ -1,0 +1,3 @@
+mysql: [Warning] Using a password on the command line interface can be insecure.
+user	host	plugin
+exporter	%	mysql_native_password

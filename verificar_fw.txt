@@ -1,0 +1,19 @@
+=== CONTENEDORES FIREWALL === 
+firewatch_firewall_exporter | Up 4 minutes
+ 
+=== LOGS FIREWALL-EXPORTER === 
+[firewall-exporter] Métricas actualizadas: 5 / 5
+[firewall-exporter] Métricas actualizadas: 5 / 5
+[firewall-exporter] Métricas actualizadas: 5 / 5
+[firewall-exporter] Métricas actualizadas: 5 / 5
+[firewall-exporter] Métricas actualizadas: 5 / 5
+[firewall-exporter] Métricas actualizadas: 5 / 5
+[firewall-exporter] Métricas actualizadas: 5 / 5
+[firewall-exporter] Métricas actualizadas: 5 / 5
+[firewall-exporter] Métricas actualizadas: 5 / 5
+[firewall-exporter] Métricas actualizadas: 5 / 5
+ 
+=== METRICAS NODE-EXPORTER (firewall) === 
+ 
+=== PROMETHEUS QUERY firewall_enabled === 
+{"status":"success","data":{"resultType":"vector","result":[{"metric":{"__name__":"firewall_enabled","instance":"node-exporter:9100","job":"node"},"value":[1785638358.944,"0"]}]}}

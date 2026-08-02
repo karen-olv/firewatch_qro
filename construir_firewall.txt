@@ -1,0 +1,71 @@
+Construyendo firewall-exporter ... 
+ Image firewatch_qro-firewall-exporter Building 
+#1 [internal] load local bake definitions
+#1 reading from stdin 653B 0.2s done
+#1 DONE 0.4s
+
+#2 [internal] load build definition from Dockerfile
+#2 transferring dockerfile: 30B 0.1s
+#2 transferring dockerfile: 659B 0.2s done
+#2 DONE 0.3s
+
+#3 [internal] load metadata for docker.io/library/python:3.11-alpine
+#3 ...
+
+#4 [auth] library/python:pull token for registry-1.docker.io
+#4 DONE 0.0s
+
+#3 [internal] load metadata for docker.io/library/python:3.11-alpine
+#3 DONE 3.6s
+
+#5 [internal] load .dockerignore
+#5 transferring context: 2B 0.1s done
+#5 DONE 0.2s
+
+#6 [internal] load build context
+#6 DONE 0.0s
+
+#7 [1/6] FROM docker.io/library/python:3.11-alpine@sha256:25976e9d34a0fab1f278cae931f34c8303d97bf0c0d7f85b6b4dcf641d7702a4
+#7 resolve docker.io/library/python:3.11-alpine@sha256:25976e9d34a0fab1f278cae931f34c8303d97bf0c0d7f85b6b4dcf641d7702a4
+#7 resolve docker.io/library/python:3.11-alpine@sha256:25976e9d34a0fab1f278cae931f34c8303d97bf0c0d7f85b6b4dcf641d7702a4 0.5s done
+#7 DONE 0.6s
+
+#6 [internal] load build context
+#6 transferring context: 67B 0.5s done
+#6 DONE 1.1s
+
+#8 [3/6] WORKDIR /opt/firewatch
+#8 CACHED
+
+#9 [4/6] COPY firewall_metrics.py .
+#9 CACHED
+
+#10 [5/6] COPY run.sh .
+#10 CACHED
+
+#11 [2/6] RUN apk add --no-cache iptables iproute2
+#11 CACHED
+
+#12 [6/6] RUN chmod +x run.sh firewall_metrics.py
+#12 CACHED
+
+#13 exporting to image
+#13 exporting layers
+#13 exporting layers 0.0s done
+#13 exporting manifest sha256:515608cbd4397cfc8ef92396b94210e48974f9477c8cb688dcb65ebc34c20d6e 0.1s done
+#13 exporting config sha256:74d351ef450d3eb51a19218aa8e65b0d02728d18f3ef066e84aeb4e75156ba3c
+#13 exporting config sha256:74d351ef450d3eb51a19218aa8e65b0d02728d18f3ef066e84aeb4e75156ba3c 0.1s done
+#13 exporting attestation manifest sha256:cf6e13b97a5f4e81ae9eb16170033190a75bc12deb635e10f18b6f8cf770e810
+#13 exporting attestation manifest sha256:cf6e13b97a5f4e81ae9eb16170033190a75bc12deb635e10f18b6f8cf770e810 2.7s done
+#13 exporting manifest list sha256:67130ce2954e2784d8db20b49c7e87cd0bbc1da3c2c2542682dd8da70fdca238
+#13 exporting manifest list sha256:67130ce2954e2784d8db20b49c7e87cd0bbc1da3c2c2542682dd8da70fdca238 0.5s done
+#13 naming to docker.io/library/firewatch_qro-firewall-exporter:latest
+#13 naming to docker.io/library/firewatch_qro-firewall-exporter:latest 0.1s done
+#13 unpacking to docker.io/library/firewatch_qro-firewall-exporter:latest 0.2s done
+#13 DONE 5.4s
+
+#14 resolving provenance for metadata file
+#14 DONE 2.7s
+ Image firewatch_qro-firewall-exporter Built 
+BUILD_DONE_0 
+=== RESULTADO === 

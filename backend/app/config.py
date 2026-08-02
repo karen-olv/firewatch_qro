@@ -15,3 +15,7 @@ class Config:
     SQLALCHEMY_TRACK_MODIFICATIONS = False
     SECRET_KEY = os.getenv("SECRET_KEY", "dev-secret-key")
     JWT_SECRET_KEY = os.getenv("JWT_SECRET_KEY", "dev-jwt-secret-key")
+
+    # Redis: usado por los workers flask1/flask2 para procesar reportes
+    # críticos (cola "reportes_criticos") y generar Incendio + Alerta.
+    REDIS_URL = os.getenv("REDIS_URL", "redis://localhost:6379/0")

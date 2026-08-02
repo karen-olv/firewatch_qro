@@ -1,0 +1,9 @@
+mysql: [Warning] Using a password on the command line interface can be insecure.
+user	host
+exporter	%
+firewatch_user	%
+root	%
+mysql.infoschema	localhost
+mysql.session	localhost
+mysql.sys	localhost
+root	localhost

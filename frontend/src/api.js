@@ -1,4 +1,7 @@
-const API_URL = import.meta.env.VITE_API_URL || "http://localhost:5000";
+// En producción (Docker/Nginx/HAProxy) usamos ruta relativa: el navegador
+// pide /api/* al mismo host y Nginx lo reenvía al HAProxy.
+// En desarrollo local se puede sobreescribir con VITE_API_URL.
+const API_URL = import.meta.env.VITE_API_URL || "";
 
 async function request(path, options = {}) {
   const headers = { "Content-Type": "application/json" };

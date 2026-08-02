@@ -1,0 +1,7 @@
+ Container firewatch_db Running 
+ Container firewatch_mysqld_exporter Recreate 
+ Container firewatch_mysqld_exporter Recreated 
+ Container firewatch_db Waiting 
+ Container firewatch_db Healthy 
+ Container firewatch_mysqld_exporter Starting 
+ Container firewatch_mysqld_exporter Started 

@@ -1,0 +1,17 @@
+=== LOGS FLASK1 === 
+ 
+=== LOGS FLASK2 === 
+ 
+=== LOGS HAPROXY (errores SSL) === 
+Server api_servers/api1 is DOWN, reason: Layer4 connection problem, info: "Connection refused", check duration: 1ms. 2 active and 0 backup servers left. 0 sessions active, 0 requeued, 0 remaining in queue.
+Server api_servers/api2 is DOWN, reason: Layer4 connection problem, info: "Connection refused", check duration: 0ms. 1 active and 0 backup servers left. 0 sessions active, 0 requeued, 0 remaining in queue.
+Server api_servers/api3 is DOWN, reason: Layer4 connection problem, info: "Connection refused", check duration: 1ms. 0 active and 0 backup servers left. 0 sessions active, 0 requeued, 0 remaining in queue.
+backend api_servers has no server available!
+Server api_servers/api2 is UP, reason: Layer7 check passed, code: 200, check duration: 103ms. 1 active and 0 backup servers online. 0 sessions requeued, 0 total in queue.
+Server api_servers/api3 is UP, reason: Layer7 check passed, code: 200, check duration: 10ms. 2 active and 0 backup servers online. 0 sessions requeued, 0 total in queue.
+Server api_servers/api1 is UP, reason: Layer7 check passed, code: 200, check duration: 6ms. 3 active and 0 backup servers online. 0 sessions requeued, 0 total in queue.
+172.22.0.1:34256 [02/Aug/2026:02:37:06.787] api_in api_servers/api2 0/0/5/1020/1025 200 1050 - - ---- 1/1/0/0/0 0/0 "GET /api/zonas HTTP/1.1"
+172.22.0.1:34272 [02/Aug/2026:02:37:09.074] api_in api_servers/api3 0/0/1/1351/1352 201 423 - - ---- 1/1/0/0/0 0/0 "POST /api/reportes HTTP/1.1"
+172.22.0.1:47506 [02/Aug/2026:02:37:20.368] api_in api_servers/api1 0/0/7/339/349 200 8280 - - ---- 1/1/0/0/0 0/0 "GET /api/incendios?estado=activo HTTP/1.1"
+172.22.0.1:47514 [02/Aug/2026:02:37:21.268] api_in api_servers/api2 0/0/1/88/89 200 1746 - - ---- 1/1/0/0/0 0/0 "GET /api/alertas HTTP/1.1"
+172.22.0.1:47522 [02/Aug/2026:02:37:21.640] api_in api_servers/api3 0/0/1/176/177 200 272 - - ---- 1/1/0/0/0 0/0 "GET /api/estadisticas/resumen HTTP/1.1"

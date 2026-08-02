@@ -1,0 +1,1 @@
+MOUNTS=[{"Type":"bind","Source":"C:\\Users\\Diego\\Documents\\GitHub\\firewatch_qro\\monitoring\\mysql\\.my.cnf","Destination":"/etc/mysql/.my.cnf","Mode":"ro","RW":false,"Propagation":"rprivate"}]

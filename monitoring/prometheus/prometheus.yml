@@ -1,12 +1,47 @@
 global:
   scrape_interval: 10s
+  evaluation_interval: 10s
 
 scrape_configs:
-  - job_name: "firewatch_backend"
+  # API balanceada: api1, api2, api3 (cada una expone /metrics)
+  - job_name: "firewatch_api"
     metrics_path: /metrics
     static_configs:
-      - targets: ["host.docker.internal:5000"]
+      - targets:
+          - "api1:5000"
+          - "api2:5000"
+          - "api3:5000"
 
+  # Workers Flask (procesan cola de Redis)
+  - job_name: "firewatch_flask_workers"
+    metrics_path: /metrics
+    static_configs:
+      - targets:
+          - "flask1:5001"
+          - "flask2:5002"
+
+  # MySQL
   - job_name: "mysql"
     static_configs:
       - targets: ["mysqld-exporter:9104"]
+
+  # Redis
+  - job_name: "redis"
+    static_configs:
+      - targets: ["redis-exporter:9121"]
+
+  # Métricas del sistema (CPU, RAM, disco del host)
+  - job_name: "node"
+    static_configs:
+      - targets: ["node-exporter:9100"]
+
+  # Métricas de contenedores Docker
+  - job_name: "cadvisor"
+    static_configs:
+      - targets: ["cadvisor:8080"]
+
+  # Prometheus se monitorea a sí mismo
+  - job_name: "prometheus"
+    static_configs:
+      - targets: ["localhost:9090"]
+

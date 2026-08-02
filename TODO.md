@@ -1,30 +1,32 @@
-# TODO - Corrección backend FireWatch QRO
+# TODO - Completar rúbrica FireWatch QRO
 
-## Pasos
-- [x] Analizar estructura del proyecto y rutas existentes
-- [x] Instalar dependencias: `pip install -r requirements.txt` en el venv
-- [x] Modificar `backend/app/__init__.py` para mostrar endpoints en `/` y Swagger en `/docs`
-- [x] Agregar `flasgger` a `backend/requirements.txt`
-- [x] Verificar que `create_app()` funciona sin errores
-- [x] Probar que `/`, `/docs` y `/api/health` responden correctamente
+## FASE 1: Monitoreo de Firewall en Grafana (punto 4 de la rúbrica)
+- [x] Crear script `monitoring/firewall/firewall_metrics.py` que detecte ufw/iptables y genere métricas Prometheus
+- [x] Crear servicio sidecar `firewall-exporter` en docker-compose.yml (loop escribiendo al textfile)
+- [x] Configurar `node-exporter` con `--collector.textfile.directory` y volumen compartido
+- [x] Agregar paneles "Firewall" al dashboard de Grafana (`firewatch.json`)
+- [x] **Construir y levantar el firewall-exporter + node-exporter (verificado `firewall_enabled` en Prometheus = 0 en Windows, será 1 en cloud Linux)**
 
-## Resumen de cambios
-1. **`backend/requirements.txt`**: se agregó `flasgger==0.9.7.1`.
-2. **`backend/app/__init__.py`**:
-   - Ruta `/` ahora genera una página HTML con la tabla de todos los endpoints (método + ruta + función) dinámicamente desde `app.url_map`.
-   - Ruta `/docs` ahora muestra la documentación Swagger UI interactiva con botón "Try it out".
-   - Se mantiene `/api/health` para health check.
-3. **`frontend/src/App.jsx`**: se agregó pantalla de login (JWT) con estilo y botón "Salir".
-4. **`frontend/src/App.css`**: estilos de la pantalla de login.
+## FASE 2: Despliegue a la nube (punto 13 de la rúbrica)
+- [x] Mejorar `deploy/deploy.sh` (crear .env con secretos, levantar stack, healthcheck, URLs)
+- [x] Hacer configurable la URL de la API en la app móvil (`EXPO_PUBLIC_API_URL` con fallback)
+- [x] Crear guía `DEPLOY_CLOUD.md` paso a paso (Oracle/AWS/Azure/DigitalOcean)
 
-## Para correr
-```bash
-cd backend
-venv\Scripts\python run.py
-```
-Luego abrir:
-- http://localhost:5000  → lista de endpoints
-- http://localhost:5000/docs → Swagger UI interactivo
+## FASE 3: Verificación final
+- [x] **Probar build + up del stack con firewall-exporter (imágenes construidas, stack arriba)**
+- [x] **Probar reporte crítico end-to-end (app móvil → Redis → worker → Incendio+Alerta → web) ✅**
+- [x] **Corregir bug del worker: `cannot unpack non-iterable NoneType object` (blpop timeout)**
+- [x] Verificar round-robin del HAProxy (api1, api2, api3 alternando; 3 nodos UP)
+- [x] Verificar panel de firewall (métricas `firewall_*` en Prometheus, paneles en Grafana)
+- [x] Actualizar README con estado final y accesos
 
-</content>
+## Resumen de verificación final (todo ✅)
+- Frontend HTTPS :443 → 200
+- API balanceada :8080/health → 200
+- Swagger :8080/docs → 200
+- HTTP :80 → 302 redirect a HTTPS
+- Stats HAProxy :8404 → 200 (admin/admin123)
+- Prometheus targets → **todos UP** (api1-3, flask1-2, mysql, redis, node, cadvisor, prometheus, firewall)
+- Flujo E2E: reporte crítico → Redis queue → worker → Incendio (id 64) + Alerta (id 7) → reflejado en web
+- Contenedores: db (healthy), api1-3, flask1-2, haproxy, redis, prometheus, grafana, exporters, frontend
 

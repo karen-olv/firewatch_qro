@@ -13,7 +13,8 @@ COPY . .
 
 EXPOSE 5000
 
-# 1) Crea/actualiza tablas y siembra datos demo si hace falta
-# 2) Arranca el servidor Flask
-CMD ["sh", "-c", "python init_db.py && python run.py"]
+# Arranca el servidor Flask.
+# La inicialización de la BD la hace el servicio one-shot "db-init"
+# del docker-compose para evitar carreras entre réplicas.
+CMD ["python", "run.py"]
 

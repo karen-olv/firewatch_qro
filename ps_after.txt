@@ -1,0 +1,19 @@
+firewatch_haproxy|Created|haproxy:2.9-alpine
+api1|Up 2 minutes|firewatch_qro-api1
+flask1|Up 2 minutes|firewatch_qro-flask1
+flask2|Up 2 minutes|firewatch_qro-flask2
+api3|Up 2 minutes|firewatch_qro-api3
+api2|Up 2 minutes|firewatch_qro-api2
+firewatch_db_init|Exited (0) 2 minutes ago|firewatch_qro-db-init
+firewatch_redis_exporter|Up 3 minutes|oliver006/redis_exporter:latest
+firewatch_grafana|Up 3 minutes|grafana/grafana:latest
+firewatch_mysqld_exporter|Restarting (1) 2 seconds ago|prom/mysqld-exporter:latest
+firewatch_redis|Up 3 minutes|redis:7-alpine
+firewatch_prometheus|Up 3 minutes|prom/prometheus:latest
+firewatch_frontend|Up 3 minutes|firewatch_qro-frontend
+firewatch_db|Up 3 minutes (healthy)|mysql:8.0
+firewatch_node_exporter|Up 3 minutes|prom/node-exporter:v1.7.0
+firewatch_cadvisor|Up 3 minutes (healthy)|gcr.io/cadvisor/cadvisor:latest
+ServerAPI|Exited (0) 17 hours ago|miapi-api
+determined_curie|Exited (255) 9 hours ago|4f898642d49d
+ServerBD|Up 2 hours (healthy)|postgres:15

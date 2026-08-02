@@ -1,0 +1,207 @@
+ Image firewatch_qro-flask2 Building 
+ Image firewatch_qro-flask1 Building 
+ Image firewatch_qro-db-init Building 
+ Image firewatch_qro-api1 Building 
+ Image firewatch_qro-api3 Building 
+ Image firewatch_qro-api2 Building 
+#1 [internal] load local bake definitions
+#1 reading from stdin 3.04kB 0.1s done
+#1 DONE 0.1s
+
+#2 [db-init internal] load build definition from Dockerfile
+#2 transferring dockerfile:
+#2 transferring dockerfile: 483B 0.3s done
+#2 DONE 0.5s
+
+#3 [db-init internal] load metadata for docker.io/library/python:3.10-slim
+#3 ...
+
+#4 [auth] library/python:pull token for registry-1.docker.io
+#4 DONE 0.0s
+
+#3 [flask2 internal] load metadata for docker.io/library/python:3.10-slim
+#3 DONE 5.3s
+
+#5 [flask2 internal] load .dockerignore
+#5 transferring context: 2B 0.0s done
+#5 DONE 0.1s
+
+#6 [flask1 internal] load build context
+#6 ...
+
+#7 [flask1 1/5] FROM docker.io/library/python:3.10-slim@sha256:c1e4e6c01eb489c422288b2de34b0761ca316f7a2d98e2c33f47659a73ed108a
+#7 resolve docker.io/library/python:3.10-slim@sha256:c1e4e6c01eb489c422288b2de34b0761ca316f7a2d98e2c33f47659a73ed108a 0.5s done
+#7 DONE 0.5s
+
+#6 [api3 internal] load build context
+#6 transferring context: 300.64kB 2.3s done
+#6 transferring context: 300.64kB 2.3s done
+#6 DONE 2.5s
+
+#8 [flask2 2/5] WORKDIR /app
+#8 CACHED
+
+#9 [flask2 3/5] COPY requirements.txt .
+#9 CACHED
+
+#10 [api2 5/5] COPY . .
+#10 ...
+
+#11 [db-init 4/5] RUN pip install --no-cache-dir -r requirements.txt
+#11 CACHED
+
+#10 [db-init 5/5] COPY . .
+#10 DONE 30.4s
+
+#12 [api2] exporting to image
+#12 exporting layers
+#12 ...
+
+#13 [flask1] exporting to image
+#13 ...
+
+#14 [db-init] exporting to image
+#14 ...
+
+#15 [flask2] exporting to image
+#15 ...
+
+#16 [api1] exporting to image
+#16 ...
+
+#17 [api3] exporting to image
+#17 ...
+
+#13 [flask1] exporting to image
+#13 exporting layers 28.3s done
+#13 exporting manifest sha256:28905ef780e0cbce0125ab649d5d62e3a4b65cccc5c25aaaf628f65446feab93
+#13 exporting manifest sha256:28905ef780e0cbce0125ab649d5d62e3a4b65cccc5c25aaaf628f65446feab93 0.3s done
+#13 exporting config sha256:3e7460545d488592ead778061fb075ecca595380057c545d30f1904fd773a3f8
+#13 exporting config sha256:3e7460545d488592ead778061fb075ecca595380057c545d30f1904fd773a3f8 0.8s done
+#13 exporting attestation manifest sha256:a6ac52135155bc926b4fe80476dca6b3b6629dbe2c32b03d46d8441e0a5513e2
+#13 exporting attestation manifest sha256:a6ac52135155bc926b4fe80476dca6b3b6629dbe2c32b03d46d8441e0a5513e2 0.8s done
+#13 exporting manifest list sha256:4b48e383e0658010e9091990fc5d982eb0f5f9eb25c3e1b96239408ae4d463f8
+#13 exporting manifest list sha256:4b48e383e0658010e9091990fc5d982eb0f5f9eb25c3e1b96239408ae4d463f8 0.4s done
+#13 naming to docker.io/library/firewatch_qro-flask1:latest
+#13 naming to docker.io/library/firewatch_qro-flask1:latest 0.3s done
+#13 unpacking to docker.io/library/firewatch_qro-flask1:latest
+#13 ...
+
+#17 [api3] exporting to image
+#17 exporting layers 28.5s done
+#17 exporting manifest sha256:224ff8e0225653d42a61305c4ea2195b566dbf97c5e120acb518542552a03255 0.8s done
+#17 exporting config sha256:4ec8f60536969da6eee908a9c258b50e69a63321a7387c5d6a8c907d84394948 0.6s done
+#17 exporting attestation manifest sha256:63b6103711464d466758be68eb6cbbcffc3cff1d025a3cc2a9f9a3d47e0493f1 0.7s done
+#17 exporting manifest list sha256:406c3a20dfa174f7ad115e669ef17dda728ae5506f6724e33ef3f9a16112a931 0.7s done
+#17 naming to docker.io/library/firewatch_qro-api3:latest 0.3s done
+#17 unpacking to docker.io/library/firewatch_qro-api3:latest
+#17 ...
+
+#15 [flask2] exporting to image
+#15 exporting layers 28.4s done
+#15 exporting manifest sha256:6cf3497406c0a1be085c2e62aaff2a55edc365427912a70d86deb5152f3783f6 0.4s done
+#15 exporting config sha256:1a3c7c5364052cbaddc95e2c1de9cf1238232f73f540da3f3fa642eecaf2f4ff 0.8s done
+#15 exporting attestation manifest sha256:3be1021f932015549b046e24d0a2b9adf9fec2174284b4c59380cfc01c4e1e3c 0.7s done
+#15 exporting manifest list sha256:dc3b688b28b85702d9a13069bd114122d340349ebae574c34660abb41fb576c5 0.6s done
+#15 naming to docker.io/library/firewatch_qro-flask2:latest 0.4s done
+#15 unpacking to docker.io/library/firewatch_qro-flask2:latest
+#15 ...
+
+#14 [db-init] exporting to image
+#14 exporting layers 28.4s done
+#14 exporting manifest sha256:ada5b18615de78ca8773c974eb599e415c305d7fdd20e1b80f213b50a9ce730e 0.6s done
+#14 exporting config sha256:5bb537139d0afbf0b848d82fcd46a49f294a6ca131e931cbfe7b099dbbdc7dda 0.6s done
+#14 exporting attestation manifest sha256:5eba2980e10a5b6bf70b9fd81c70e8db025523301072c71d1864e98ed816dc6c 0.7s done
+#14 exporting manifest list sha256:351dacf5215e8bd76aee687a40358de47a268b52809473b5487bba0545d10c29 0.6s done
+#14 naming to docker.io/library/firewatch_qro-db-init:latest 0.4s done
+#14 unpacking to docker.io/library/firewatch_qro-db-init:latest
+#14 ...
+
+#12 [api2] exporting to image
+#12 exporting layers 28.4s done
+#12 exporting manifest sha256:62acf77344964013477a6f76d4c8d1bf7425bb1f11fc326297b8df7630ec3921 0.8s done
+#12 exporting config sha256:54aaa9021af73996e080d737d66d2020f928e8308525886a68bb7c15f23a0350 0.5s done
+#12 exporting attestation manifest sha256:6906726f69ce76db767130a02e88e6cc3252225f5553e53d71bb5dfc2114f18f 0.7s done
+#12 exporting manifest list sha256:e8c65804c397484323ecea3c58c3b3f0f9691243377b30500e22665ec3b910ff 0.7s done
+#12 naming to docker.io/library/firewatch_qro-api2:latest 0.4s done
+#12 unpacking to docker.io/library/firewatch_qro-api2:latest
+#12 ...
+
+#16 [api1] exporting to image
+#16 exporting layers 28.4s done
+#16 exporting manifest sha256:0acdc72d8d01b51608dfcbeca7daeee491821696d78482673fa63d4e3949e542 0.4s done
+#16 exporting config sha256:8d66fc4a6d3744b6536fe38dba0b45c52a43f47b2d223400e4f4b0d759c37005 0.8s done
+#16 exporting attestation manifest sha256:f8d56ff29bbf05fa2a6fdfc4ad3c6f3915ab31008b6125b535ababa40362015d 0.7s done
+#16 exporting manifest list sha256:217245c69491b44f4dab5ba56db11cb7781df02fdfd60e66554996be6bdf4d16 0.5s done
+#16 naming to docker.io/library/firewatch_qro-api1:latest 0.4s done
+#16 unpacking to docker.io/library/firewatch_qro-api1:latest
+#16 ...
+
+#13 [flask1] exporting to image
+#13 unpacking to docker.io/library/firewatch_qro-flask1:latest 45.3s done
+#13 ...
+
+#16 [api1] exporting to image
+#16 unpacking to docker.io/library/firewatch_qro-api1:latest 44.9s done
+#16 DONE 78.3s
+
+#14 [db-init] exporting to image
+#14 unpacking to docker.io/library/firewatch_qro-db-init:latest 44.8s done
+#14 ...
+
+#13 [flask1] exporting to image
+#13 DONE 78.8s
+
+#12 [api2] exporting to image
+#12 unpacking to docker.io/library/firewatch_qro-api2:latest 46.9s done
+#12 ...
+
+#14 [db-init] exporting to image
+#14 DONE 79.0s
+
+#17 [api3] exporting to image
+#17 unpacking to docker.io/library/firewatch_qro-api3:latest 47.2s done
+#17 ...
+
+#12 [api2] exporting to image
+#12 DONE 80.8s
+
+#15 [flask2] exporting to image
+#15 unpacking to docker.io/library/firewatch_qro-flask2:latest 47.6s done
+#15 ...
+
+#17 [api3] exporting to image
+#17 DONE 81.2s
+
+#15 [flask2] exporting to image
+#15 DONE 81.2s
+
+#18 [api1] resolving provenance for metadata file
+#18 DONE 3.9s
+
+#19 [api3] resolving provenance for metadata file
+#19 ...
+
+#20 [api2] resolving provenance for metadata file
+#20 DONE 1.9s
+
+#21 [flask2] resolving provenance for metadata file
+#21 ...
+
+#22 [flask1] resolving provenance for metadata file
+#22 DONE 4.5s
+
+#23 [db-init] resolving provenance for metadata file
+#23 DONE 3.5s
+
+#21 [flask2] resolving provenance for metadata file
+#21 DONE 2.1s
+
+#19 [api3] resolving provenance for metadata file
+#19 DONE 1.7s
+ Image firewatch_qro-api2 Built 
+ Image firewatch_qro-api3 Built 
+ Image firewatch_qro-flask1 Built 
+ Image firewatch_qro-flask2 Built 
+ Image firewatch_qro-db-init Built 
+ Image firewatch_qro-api1 Built 

@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>FireWatch QRO API - Endpoints</title>
+<style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body {
+        font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+        background: linear-gradient(135deg, #0b1d33 0%, #122a47 100%);
+        color: #e6edf3;
+        min-height: 100vh;
+        padding: 2rem 1rem;
+    }
+    .container { max-width: 900px; margin: 0 auto; }
+    header { text-align: center; margin-bottom: 2rem; }
+    header h1 {
+        font-size: 1.9rem;
+        background: linear-gradient(90deg, #f97316, #ef4444);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        background-clip: text;
+    }
+    header p { color: #9db1c7; margin-top: .4rem; }
+    .card {
+        background: rgba(255, 255, 255, .06);
+        border: 1px solid rgba(255, 255, 255, .1);
+        border-radius: 14px;
+        overflow: hidden;
+        backdrop-filter: blur(6px);
+    }
+    table { width: 100%; border-collapse: collapse; }
+    th, td { padding: .85rem 1rem; text-align: left; }
+    th {
+        background: rgba(255, 255, 255, .08);
+        font-size: .8rem;
+        text-transform: uppercase;
+        letter-spacing: .05em;
+        color: #9db1c7;
+    }
+    tr:not(:last-child) td { border-bottom: 1px solid rgba(255, 255, 255, .07); }
+    td code {
+        background: rgba(255, 255, 255, .08);
+        padding: .2rem .5rem;
+        border-radius: 6px;
+        font-size: .85rem;
+        color: #7dd3fc;
+        word-break: break-all;
+    }
+    .badge {
+        display: inline-block;
+        padding: .22rem .6rem;
+        border-radius: 999px;
+        font-size: .72rem;
+        font-weight: 700;
+        letter-spacing: .03em;
+    }
+    .badge.get { background: #164e63; color: #67e8f9; }
+    .badge.post { background: #14532d; color: #86efac; }
+    .badge.patch { background: #713f12; color: #fde047; }
+    .badge.put { background: #78350f; color: #fdba74; }
+    .badge.delete { background: #7f1d1d; color: #fca5a5; }
+    footer { text-align: center; margin-top: 2rem; color: #64748b; font-size: .85rem; }
+</style>
+</head>
+<body>
+<div class="container">
+    <header>
+        <h1>🔥 FireWatch QRO API</h1>
+        <p>Listado de endpoints disponibles</p>
+    </header>
+    <div class="card">
+        <table>
+            <thead>
+                <tr><th>Método</th><th>Ruta</th><th>Función</th></tr>
+            </thead>
+            <tbody>
+                <tr><td><span class='badge get'>GET</span></td><td><code>/</code></td><td>inicio</td></tr><tr><td><span class='badge get'>GET</span></td><td><code>/api/alertas</code></td><td>alertas.listar_alertas</td></tr><tr><td><span class='badge post'>POST</span></td><td><code>/api/alertas</code></td><td>alertas.crear_alerta</td></tr><tr><td><span class='badge post'>POST</span></td><td><code>/api/auth/login</code></td><td>auth.login</td></tr><tr><td><span class='badge get'>GET</span></td><td><code>/api/auth/perfil</code></td><td>auth.perfil</td></tr><tr><td><span class='badge post'>POST</span></td><td><code>/api/auth/registro</code></td><td>auth.registro</td></tr><tr><td><span class='badge get'>GET</span></td><td><code>/api/estadisticas/resumen</code></td><td>estadisticas.resumen_kpis</td></tr><tr><td><span class='badge get'>GET</span></td><td><code>/api/estadisticas/tendencia</code></td><td>estadisticas.tendencia_incendios</td></tr><tr><td><span class='badge get'>GET</span></td><td><code>/api/estadisticas/top-municipios</code></td><td>estadisticas.top_municipios</td></tr><tr><td><span class='badge get'>GET</span></td><td><code>/api/health</code></td><td>health</td></tr><tr><td><span class='badge get'>GET</span></td><td><code>/api/incendios</code></td><td>incendios.obtener_incendios</td></tr><tr><td><span class='badge post'>POST</span></td><td><code>/api/incendios</code></td><td>incendios.crear_incendio</td></tr><tr><td><span class='badge get'>GET</span></td><td><code>/api/municipios</code></td><td>estadisticas.listar_municipios</td></tr><tr><td><span class='badge get'>GET</span></td><td><code>/api/reportes</code></td><td>reportes.listar_reportes</td></tr><tr><td><span class='badge post'>POST</span></td><td><code>/api/reportes</code></td><td>reportes.crear_reporte</td></tr><tr><td><span class='badge patch'>PATCH</span></td><td><code>/api/reportes/<int:reporte_id>/validar</code></td><td>reportes.validar_reporte</td></tr><tr><td><span class='badge get'>GET</span></td><td><code>/api/usuarios</code></td><td>usuarios.listar_usuarios</td></tr><tr><td><span class='badge get'>GET</span></td><td><code>/api/zonas</code></td><td>estadisticas.listar_zonas</td></tr><tr><td><span class='badge get'>GET</span></td><td><code>/apidocs/index.html</code></td><td>flasgger.<lambda></td></tr><tr><td><span class='badge get'>GET</span></td><td><code>/apispec.json</code></td><td>flasgger.apispec</td></tr><tr><td><span class='badge get'>GET</span></td><td><code>/docs</code></td><td>flasgger.apidocs</td></tr><tr><td><span class='badge get'>GET</span></td><td><code>/flasgger_static/<path:filename></code></td><td>flasgger.static</td></tr><tr><td><span class='badge get'>GET</span></td><td><code>/oauth2-redirect.html</code></td><td>flasgger.oauth_redirect</td></tr>
+            </tbody>
+        </table>
+    </div>
+    <footer>FireWatch QRO &middot; API v1.0.0 &middot; Generado automáticamente</footer>
+</div>
+</body>
+</html>DOCS_200
+8404_401

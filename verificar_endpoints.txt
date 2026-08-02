@@ -1,0 +1,8 @@
+=== VERIFICACION DE ENDPOINTS === 
+Frontend HTTPS :443 -> 200 
+HAProxy Stats :8404 -> 000 
+Grafana :8405 -> 000 
+API :8080/health -> 200 
+Swagger :8080/docs -> 200 
+Prometheus :9090 -> 302 
+HTTP :80 redirect -> 302 

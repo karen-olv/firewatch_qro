@@ -1,18 +1,29 @@
+name: firewatch_monitoring
+
+# Stack OPCIONAL e independiente de monitoreo.
+# NOTA: El docker-compose.yml raíz YA incluye Prometheus + exporters.
+# Este archivo se deja como referencia/complemento para quien quiera
+# levantar monitoreo por separado conectándose a la red privada del stack
+# principal (creada automáticamente como firewatch_qro_private_net).
+
 services:
   prometheus:
     image: prom/prometheus:latest
     container_name: firewatch_prometheus
+    restart: unless-stopped
     ports:
       - "9090:9090"
     volumes:
       - ./prometheus/prometheus.yml:/etc/prometheus/prometheus.yml
+    networks:
+      - firewatch_private
     extra_hosts:
       - "host.docker.internal:host-gateway"
-    restart: unless-stopped
 
   grafana:
     image: grafana/grafana:latest
     container_name: firewatch_grafana
+    restart: unless-stopped
     ports:
       - "3001:3000"
     environment:
@@ -23,21 +34,15 @@ services:
       - grafana_data:/var/lib/grafana
     depends_on:
       - prometheus
-    restart: unless-stopped
-
-  mysqld-exporter:
-    image: prom/mysqld-exporter:latest
-    container_name: firewatch_mysqld_exporter
-    environment:
-      # MySQL está expuesto en el host en el puerto 3307
-      # (definido en el docker-compose.yml raíz del proyecto).
-      - DATA_SOURCE_NAME=exporter:exporter_pass@(host.docker.internal:3307)/
-    extra_hosts:
-      - "host.docker.internal:host-gateway"
-    ports:
-      - "9104:9104"
-    restart: unless-stopped
+    networks:
+      - firewatch_private
 
 volumes:
   grafana_data:
+
+networks:
+  # Se conecta a la red privada del stack principal (si existe).
+  firewatch_private:
+    name: firewatch_qro_private_net
+    external: true
 

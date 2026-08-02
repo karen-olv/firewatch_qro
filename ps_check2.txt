@@ -1,0 +1,3 @@
+ServerAPI|Exited (0) 17 hours ago|miapi-api
+determined_curie|Exited (255) 9 hours ago|4f898642d49d
+ServerBD|Up 2 hours (healthy)|postgres:15

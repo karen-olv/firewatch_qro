@@ -1,0 +1,1 @@
+CAMINO=/bin/mysqld_exporter ARGS=["--config.my-cnf=/etc/mysql/.my.cnf"]

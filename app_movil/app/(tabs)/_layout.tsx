@@ -8,28 +8,42 @@ import { useColorScheme } from '@/hooks/use-color-scheme';
 
 export default function TabLayout() {
   const colorScheme = useColorScheme();
+  const colors = Colors[colorScheme ?? 'dark'];
 
   return (
     <Tabs
       screenOptions={{
-        tabBarActiveTintColor: Colors[colorScheme ?? 'light'].tint,
+        tabBarActiveTintColor: colors.tabIconSelected,
+        tabBarInactiveTintColor: colors.tabIconDefault,
+        tabBarStyle: {
+          backgroundColor: colors.background,
+          borderTopColor: colors.border,
+        },
         headerShown: false,
         tabBarButton: HapticTab,
       }}>
       <Tabs.Screen
         name="index"
         options={{
-          title: 'Home',
-          tabBarIcon: ({ color }) => <IconSymbol size={28} name="house.fill" color={color} />,
+          title: 'Reportar',
+          tabBarIcon: ({ color }) => <IconSymbol size={26} name="flame.fill" color={color} />,
         }}
       />
       <Tabs.Screen
-        name="explore"
+        name="incendios"
         options={{
-          title: 'Explore',
-          tabBarIcon: ({ color }) => <IconSymbol size={28} name="paperplane.fill" color={color} />,
+          title: 'Incendios',
+          tabBarIcon: ({ color }) => <IconSymbol size={26} name="map.fill" color={color} />,
+        }}
+      />
+      <Tabs.Screen
+        name="alertas"
+        options={{
+          title: 'Alertas',
+          tabBarIcon: ({ color }) => <IconSymbol size={26} name="bell.fill" color={color} />,
         }}
       />
     </Tabs>
   );
 }
+

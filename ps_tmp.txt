@@ -1,0 +1,19 @@
+firewatch_mysqld_exporter|Up 5 minutes
+firewatch_haproxy|Up 14 minutes
+api1|Up 25 minutes
+flask1|Up 25 minutes
+flask2|Up 25 minutes
+api3|Up 25 minutes
+api2|Up 25 minutes
+firewatch_db_init|Exited (0) 14 minutes ago
+firewatch_redis_exporter|Up 26 minutes
+firewatch_grafana|Up 26 minutes
+firewatch_redis|Up 26 minutes
+firewatch_prometheus|Up 26 minutes
+firewatch_frontend|Up 26 minutes
+firewatch_db|Up 26 minutes (healthy)
+firewatch_node_exporter|Up 26 minutes
+firewatch_cadvisor|Up 26 minutes (healthy)
+ServerAPI|Exited (0) 17 hours ago
+determined_curie|Exited (255) 10 hours ago
+ServerBD|Up 3 hours (healthy)

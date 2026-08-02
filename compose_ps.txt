@@ -1,0 +1,15 @@
+NAME                        IMAGE                             COMMAND                  SERVICE           CREATED         STATUS                          PORTS
+api1                        firewatch_qro-api1                "python run.py"          api1              2 minutes ago   Up 13 seconds                   0.0.0.0:8001->5000/tcp, [::]:8001->5000/tcp
+api2                        firewatch_qro-api2                "python run.py"          api2              2 minutes ago   Up 12 seconds                   0.0.0.0:8002->5000/tcp, [::]:8002->5000/tcp
+api3                        firewatch_qro-api3                "python run.py"          api3              2 minutes ago   Up 14 seconds                   0.0.0.0:8003->5000/tcp, [::]:8003->5000/tcp
+firewatch_cadvisor          gcr.io/cadvisor/cadvisor:latest   "/usr/bin/cadvisor -…"   cadvisor          2 minutes ago   Up About a minute (healthy)     8080/tcp
+firewatch_db                mysql:8.0                         "docker-entrypoint.s…"   db                2 minutes ago   Up About a minute (healthy)     3306/tcp, 33060/tcp
+firewatch_frontend          firewatch_qro-frontend            "/docker-entrypoint.…"   frontend          2 minutes ago   Up 11 seconds                   80/tcp
+firewatch_grafana           grafana/grafana:latest            "/run.sh"                grafana           2 minutes ago   Up About a minute               3000/tcp
+firewatch_mysqld_exporter   prom/mysqld-exporter:latest       "/bin/mysqld_exporter"   mysqld-exporter   2 minutes ago   Restarting (1) 25 seconds ago   
+firewatch_node_exporter     prom/node-exporter:v1.7.0         "/bin/node_exporter …"   node-exporter     2 minutes ago   Up About a minute               9100/tcp
+firewatch_prometheus        prom/prometheus:latest            "/bin/prometheus --c…"   prometheus        2 minutes ago   Up About a minute               0.0.0.0:9090->9090/tcp, [::]:9090->9090/tcp
+firewatch_redis             redis:7-alpine                    "docker-entrypoint.s…"   redis             2 minutes ago   Up About a minute               6379/tcp
+firewatch_redis_exporter    oliver006/redis_exporter:latest   "/redis_exporter"        redis-exporter    2 minutes ago   Up About a minute               9121/tcp
+flask1                      firewatch_qro-flask1              "python worker.py"       flask1            2 minutes ago   Up 12 seconds                   0.0.0.0:5001->5001/tcp, [::]:5001->5001/tcp
+flask2                      firewatch_qro-flask2              "python worker.py"       flask2            2 minutes ago   Up 12 seconds                   0.0.0.0:5002->5002/tcp, [::]:5002->5002/tcp

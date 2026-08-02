@@ -1,0 +1,18 @@
+=== CONTENEDORES STACK === 
+firewatch_firewall_exporter | Up 23 minutes | 
+firewatch_node_exporter | Up 23 minutes | 9100/tcp
+firewatch_redis_exporter | Up 23 minutes | 9121/tcp
+firewatch_grafana | Up 22 minutes | 3000/tcp
+firewatch_redis | Up 23 minutes | 6379/tcp
+firewatch_prometheus | Up 23 minutes | 0.0.0.0:9090->9090/tcp, [::]:9090->9090/tcp
+firewatch_frontend | Up 23 minutes | 80/tcp
+firewatch_db | Up 23 minutes (healthy) | 3306/tcp, 33060/tcp
+firewatch_cadvisor | Up 23 minutes (healthy) | 8080/tcp
+ServerAPI | Up 59 minutes | 0.0.0.0:5000->5000/tcp, [::]:5000->5000/tcp
+ServerBD | Up 5 hours (healthy) | 0.0.0.0:5434->5432/tcp, [::]:5434->5432/tcp
+ 
+=== TEST HTTP 8080 === 
+ERROR: No es posible conectar con el servidor remoto
+ 
+=== TEST HTTP 5000 === 
+ERROR: Se ha terminado la conexión: La conexión ha terminado de forma inesperada.

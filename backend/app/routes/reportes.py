@@ -1,4 +1,7 @@
-from flask import Blueprint, request, jsonify
+import json
+import os
+from flask import Blueprint, request, jsonify, current_app
+from flask_jwt_extended import jwt_required
 from app.extensions import db
 # <-- Aquí ya importamos Zona para que no marque rojo
 from app.models import Reporte, Zona
@@ -95,11 +98,33 @@ def crear_reporte():
     db.session.add(reporte)
     db.session.commit()
 
+    # Si el reporte es crítico, se publica en Redis para que los workers
+    # (flask1/flask2) lo procesen y generen Incendio + Alerta automáticamente.
+    if reporte.es_critico:
+        try:
+            import redis as redis_lib
+            redis_url = current_app.config.get(
+                "REDIS_URL", os.getenv("REDIS_URL", "redis://localhost:6379/0"))
+            r = redis_lib.Redis.from_url(redis_url, decode_responses=True)
+            r.rpush("reportes_criticos", json.dumps({
+                "reporte_id": reporte.id,
+                "zona_id": reporte.zona_id,
+                "descripcion": reporte.descripcion,
+            }))
+            current_app.logger.info(
+                "Reporte crítico %s publicado en Redis", reporte.id)
+        except Exception as exc:  # noqa: BLE001
+            # Si Redis no está disponible, no rompemos el reporte;
+            # simplemente queda pendiente para que un admin lo valide.
+            current_app.logger.warning(
+                "No se pudo publicar en Redis: %s", exc)
+
     # Usamos tu to_dict() que está mucho más limpio
     return jsonify(reporte.to_dict()), 201
 
 
 @bp.patch("/<int:reporte_id>/validar")
+@jwt_required()
 def validar_reporte(reporte_id):
     """
     Marcar un reporte como validado (Protección Civil).

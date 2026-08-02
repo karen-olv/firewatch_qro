@@ -1,0 +1,2 @@
+[NOTICE]   (1) : New worker (8) forked
+[NOTICE]   (1) : Loading success.

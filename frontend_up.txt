@@ -1,0 +1,101 @@
+ Image firewatch_qro-frontend Building 
+#1 [internal] load local bake definitions
+#1 reading from stdin 593B 0.0s done
+#1 DONE 0.1s
+
+#2 [internal] load build definition from Dockerfile
+#2 transferring dockerfile: 663B 0.0s done
+#2 DONE 0.1s
+
+#3 [internal] load metadata for docker.io/library/nginx:1.25-alpine
+#3 ...
+
+#4 [auth] library/node:pull token for registry-1.docker.io
+#4 DONE 0.0s
+
+#5 [auth] library/nginx:pull token for registry-1.docker.io
+#5 DONE 0.0s
+
+#6 [internal] load metadata for docker.io/library/node:20-alpine
+#6 DONE 2.1s
+
+#3 [internal] load metadata for docker.io/library/nginx:1.25-alpine
+#3 DONE 2.1s
+
+#7 [internal] load .dockerignore
+#7 transferring context: 107B 0.1s done
+#7 DONE 0.2s
+
+#8 [internal] load build context
+#8 transferring context: 1.87kB 0.1s done
+#8 DONE 0.4s
+
+#9 [build 1/6] FROM docker.io/library/node:20-alpine@sha256:fb4cd12c85ee03686f6af5362a0b0d56d50c58a04632e6c0fb8363f609372293
+#9 resolve docker.io/library/node:20-alpine@sha256:fb4cd12c85ee03686f6af5362a0b0d56d50c58a04632e6c0fb8363f609372293
+#9 resolve docker.io/library/node:20-alpine@sha256:fb4cd12c85ee03686f6af5362a0b0d56d50c58a04632e6c0fb8363f609372293 0.3s done
+#9 DONE 0.5s
+
+#10 [stage-1 1/3] FROM docker.io/library/nginx:1.25-alpine@sha256:516475cc129da42866742567714ddc681e5eed7b9ee0b9e9c015e464b4221a00
+#10 resolve docker.io/library/nginx:1.25-alpine@sha256:516475cc129da42866742567714ddc681e5eed7b9ee0b9e9c015e464b4221a00 0.4s done
+#10 DONE 0.4s
+
+#11 [build 2/6] WORKDIR /app
+#11 CACHED
+
+#12 [build 3/6] COPY package*.json ./
+#12 CACHED
+
+#13 [build 4/6] RUN npm install
+#13 CACHED
+
+#14 [build 5/6] COPY . .
+#14 DONE 0.2s
+
+#15 [build 6/6] RUN npm run build
+#15 2.520 
+#15 2.520 > frontend@0.0.0 build
+#15 2.520 > vite build
+#15 2.520 
+#15 3.467 vite v8.1.5 building client environment for production...
+#15 3.532 [2Ktransforming...✓ 2352 modules transformed.
+#15 5.215 rendering chunks...
+#15 5.610 computing gzip size...
+#15 5.652 dist/index.html                   0.38 kB │ gzip:   0.27 kB
+#15 5.652 dist/assets/index-BNPgoyYM.css    8.98 kB │ gzip:   2.31 kB
+#15 5.652 dist/assets/index-Dka7dirD.js   584.50 kB │ gzip: 172.75 kB
+#15 5.652 
+#15 5.658 [plugin builtin:vite-reporter] 
+#15 5.658 (!) Some chunks are larger than 500 kB after minification. Consider:
+#15 5.658 - Using dynamic import() to code-split the application
+#15 5.658 - Use build.rolldownOptions.output.codeSplitting to improve chunking: https://rolldown.rs/reference/OutputOptions.codeSplitting
+#15 5.658 - Adjust chunk size limit for this warning via build.chunkSizeWarningLimit.
+#15 5.674 ✓ built in 2.19s
+#15 DONE 5.9s
+
+#16 [stage-1 2/3] COPY --from=build /app/dist /usr/share/nginx/html
+#16 CACHED
+
+#17 [stage-1 3/3] COPY nginx.conf /etc/nginx/conf.d/default.conf
+#17 DONE 0.1s
+
+#18 exporting to image
+#18 exporting layers
+#18 exporting layers 0.3s done
+#18 exporting manifest sha256:73f87379ad2688f4995b9e179fe63c9a71b798dc3ea1b1ed12b24d1f5911ceb2 0.1s done
+#18 exporting config sha256:b3eff095457fb83b3832aee6157c0344e47714f0993df4178aac0c4b0859b442 0.1s done
+#18 exporting attestation manifest sha256:fa0d05595c22ff5cc3c2095f02cfbc2ad4ba29efd2537b6b3495f21faeb0141e 0.1s done
+#18 exporting manifest list sha256:2a938696428657249f79f9ece2f2e6eba050b57c83957d7268864543051e16db
+#18 exporting manifest list sha256:2a938696428657249f79f9ece2f2e6eba050b57c83957d7268864543051e16db 0.1s done
+#18 naming to docker.io/library/firewatch_qro-frontend:latest done
+#18 unpacking to docker.io/library/firewatch_qro-frontend:latest 0.1s done
+#18 DONE 1.0s
+
+#19 resolving provenance for metadata file
+#19 DONE 0.2s
+ Image firewatch_qro-frontend Built 
+ Network firewatch_qro_public_net Creating 
+ Network firewatch_qro_public_net Created 
+ Container firewatch_frontend Creating 
+ Container firewatch_frontend Created 
+ Container firewatch_frontend Starting 
+ Container firewatch_frontend Started 

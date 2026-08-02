@@ -1,4 +1,23 @@
+name: firewatch_qro
+
+networks:
+  # Red PÚBLICA: servicios accesibles desde internet (solo vía HAProxy)
+  public_net:
+    driver: bridge
+  # Red PRIVADA: servicios internos (API, BD, Redis, monitoreo) aislados
+  private_net:
+    driver: bridge
+
+volumes:
+  mysql_data:
+  grafana_data:
+  prometheus_data:
+  firewall_textfile:
+
 services:
+  # =============================================================
+  #  RED PRIVADA 1/2: MySQL + Redis
+  # =============================================================
   db:
     image: mysql:8.0
     container_name: firewatch_db
@@ -8,11 +27,13 @@ services:
       MYSQL_DATABASE: firewatch_qro
       MYSQL_USER: firewatch_user
       MYSQL_PASSWORD: firewatch_pass
-    ports:
-      - "3307:3306"
     volumes:
       - mysql_data:/var/lib/mysql
       - ./db/init.sql:/docker-entrypoint-initdb.d/init.sql:ro
+    networks:
+      - private_net
+    expose:
+      - "3306"
     healthcheck:
       test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-uroot", "-prootpassword"]
       interval: 10s
@@ -20,21 +41,307 @@ services:
       retries: 10
       start_period: 30s
 
-  backend:
-    build: ./backend
-    container_name: firewatch_api
+  redis:
+    image: redis:7-alpine
+    container_name: firewatch_redis
     restart: always
-    ports:
-      - "5000:5000"
+    command: ["redis-server", "--appendonly", "yes"]
+    networks:
+      - private_net
+    expose:
+      - "6379"
+
+  # =============================================================
+  #  RED PRIVADA: Inicialización one-shot de la BD
+  #  Crea tablas y siembra datos demo una sola vez (evita carreras).
+  # =============================================================
+  db-init:
+    build: ./backend
+    container_name: firewatch_db_init
+    command: python init_db.py
+    restart: "no"
     environment:
       DATABASE_URL: mysql+pymysql://firewatch_user:firewatch_pass@db:3306/firewatch_qro
       JWT_SECRET_KEY: cambia-esta-clave-jwt-por-otra-propia
       SECRET_KEY: clave-super-secreta-firewatch-2026
+      REDIS_URL: redis://redis:6379/0
+    depends_on:
+      db:
+        condition: service_healthy
+      redis:
+        condition: service_started
+    networks:
+      - private_net
+
+  # =============================================================
+  #  RED PRIVADA 2/2: API balanceada (3 réplicas)
+  #  Puertos privados: api1=8001, api2=8002, api3=8003
+  # =============================================================
+  api1:
+    build: ./backend
+    container_name: api1
+    restart: always
+    environment: &api_env
+      DATABASE_URL: mysql+pymysql://firewatch_user:firewatch_pass@db:3306/firewatch_qro
+      JWT_SECRET_KEY: cambia-esta-clave-jwt-por-otra-propia
+      SECRET_KEY: clave-super-secreta-firewatch-2026
+      REDIS_URL: redis://redis:6379/0
       FLASK_DEBUG: "0"
     depends_on:
       db:
         condition: service_healthy
+      db-init:
+        condition: service_completed_successfully
+      redis:
+        condition: service_started
+    networks:
+      - private_net
+    expose:
+      - "5000"
+    ports:
+      - "8001:5000"
 
-volumes:
-  mysql_data:
+  api2:
+    build: ./backend
+    container_name: api2
+    restart: always
+    environment:
+      <<: *api_env
+    depends_on:
+      db:
+        condition: service_healthy
+      db-init:
+        condition: service_completed_successfully
+      redis:
+        condition: service_started
+    networks:
+      - private_net
+    expose:
+      - "5000"
+    ports:
+      - "8002:5000"
+
+  api3:
+    build: ./backend
+    container_name: api3
+    restart: always
+    environment:
+      <<: *api_env
+    depends_on:
+      db:
+        condition: service_healthy
+      db-init:
+        condition: service_completed_successfully
+      redis:
+        condition: service_started
+    networks:
+      - private_net
+    expose:
+      - "5000"
+    ports:
+      - "8003:5000"
+
+  # =============================================================
+  #  RED PRIVADA: Workers Flask (consumen cola de Redis)
+  #  Puertos privados: flask1=5001, flask2=5002
+  # =============================================================
+  flask1:
+    build: ./backend
+    container_name: flask1
+    command: python worker.py
+    restart: always
+    environment:
+      <<: *api_env
+      FLASK_PORT: "5001"
+    depends_on:
+      db:
+        condition: service_healthy
+      db-init:
+        condition: service_completed_successfully
+      redis:
+        condition: service_started
+    networks:
+      - private_net
+    expose:
+      - "5001"
+    ports:
+      - "5001:5001"
+
+  flask2:
+    build: ./backend
+    container_name: flask2
+    command: python worker.py
+    restart: always
+    environment:
+      <<: *api_env
+      FLASK_PORT: "5002"
+    depends_on:
+      db:
+        condition: service_healthy
+      db-init:
+        condition: service_completed_successfully
+      redis:
+        condition: service_started
+    networks:
+      - private_net
+    expose:
+      - "5002"
+    ports:
+      - "5002:5002"
+
+  # =============================================================
+  #  RED PRIVADA: Monitoreo (Prometheus + exporters)
+  # =============================================================
+  prometheus:
+    image: prom/prometheus:latest
+    container_name: firewatch_prometheus
+    restart: always
+    volumes:
+      - ./monitoring/prometheus/prometheus.yml:/etc/prometheus/prometheus.yml
+      - prometheus_data:/prometheus
+    networks:
+      - private_net
+    ports:
+      - "9090:9090"
+
+  mysqld-exporter:
+    image: prom/mysqld-exporter:v0.15.1
+    container_name: firewatch_mysqld_exporter
+    restart: always
+    environment:
+      # v0.15.x lee las credenciales desde el archivo .my.cnf
+      - MYSQLD_EXPORTER_PASSWORD=exporter_pass
+    command:
+      - '--config.my-cnf=/etc/mysql/.my.cnf'
+    volumes:
+      - ./monitoring/mysql/.my.cnf:/etc/mysql/.my.cnf:ro
+    depends_on:
+      db:
+        condition: service_healthy
+    networks:
+      - private_net
+    expose:
+      - "9104"
+
+  redis-exporter:
+    image: oliver006/redis_exporter:latest
+    container_name: firewatch_redis_exporter
+    restart: always
+    environment:
+      - REDIS_ADDR=redis://redis:6379
+    depends_on:
+      - redis
+    networks:
+      - private_net
+    expose:
+      - "9121"
+
+  node-exporter:
+    image: prom/node-exporter:v1.7.0
+    container_name: firewatch_node_exporter
+    restart: always
+    command:
+      - '--path.procfs=/host/proc'
+      - '--path.sysfs=/host/sys'
+      - '--path.rootfs=/host/root'
+      - '--collector.textfile.directory=/var/lib/node_exporter/textfile'
+    volumes:
+      - /proc:/host/proc:ro
+      - /sys:/host/sys:ro
+      - /:/host/root:ro
+      # Métricas de firewall generadas por firewall-exporter (textfile collector)
+      - firewall_textfile:/var/lib/node_exporter/textfile:ro
+    networks:
+      - private_net
+    expose:
+      - "9100"
+
+  # =============================================================
+  #  RED PRIVADA: Firewall Exporter (monitoreo de firewall)
+  #  Corre en el namespace de red del host para leer /proc/net y
+  #  ejecutar ufw/iptables. Escribe métricas en un volumen
+  #  compartido que node-exporter publica como "firewall_*".
+  # =============================================================
+  firewall-exporter:
+    build: ./monitoring/firewall
+    container_name: firewatch_firewall_exporter
+    restart: always
+    network_mode: host
+    environment:
+      - OUT_DIR=/var/lib/node_exporter/textfile
+    volumes:
+      - firewall_textfile:/var/lib/node_exporter/textfile
+
+  cadvisor:
+    image: gcr.io/cadvisor/cadvisor:latest
+    container_name: firewatch_cadvisor
+    restart: always
+    volumes:
+      - /:/rootfs:ro
+      - /var/run:/var/run:ro
+      - /sys:/sys:ro
+      - /var/lib/docker/:/var/lib/docker:ro
+      - /dev/disk/:/dev/disk:ro
+    networks:
+      - private_net
+    expose:
+      - "8080"
+    privileged: true
+    devices:
+      - /dev/kmsg
+
+  # =============================================================
+  #  RED PÚBLICA: Frontend Web + Grafana + HAProxy
+  # =============================================================
+  frontend:
+    build: ./frontend
+    container_name: firewatch_frontend
+    restart: always
+    networks:
+      - public_net
+    expose:
+      - "80"
+
+  grafana:
+    image: grafana/grafana:latest
+    container_name: firewatch_grafana
+    restart: always
+    environment:
+      - GF_SECURITY_ADMIN_USER=admin
+      - GF_SECURITY_ADMIN_PASSWORD=admin123
+    volumes:
+      - ./monitoring/grafana/provisioning:/etc/grafana/provisioning
+      - grafana_data:/var/lib/grafana
+    depends_on:
+      - prometheus
+    networks:
+      - public_net
+      - private_net
+    expose:
+      - "3000"
+
+  haproxy:
+    image: haproxy:2.9-alpine
+    container_name: firewatch_haproxy
+    restart: always
+    depends_on:
+      - api1
+      - api2
+      - api3
+      - frontend
+      - grafana
+    ports:
+      - "80:80"
+      - "443:443"
+      - "8080:8080"
+      - "8404:8404"
+      - "8405:8405"
+    volumes:
+      - ./deploy/haproxy:/usr/local/etc/haproxy:ro
+      # Certificados SSL en /etc/haproxy/certs (capa independiente para no
+      # interferir con el volumen ro de la configuración)
+      - ./deploy/ssl/certs:/etc/haproxy/certs:ro
+    networks:
+      - public_net
+      - private_net
 

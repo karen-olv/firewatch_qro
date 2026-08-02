@@ -1,0 +1,45 @@
+=== TODOS LOS CONTENEDORES === 
+firewatch_firewall_exporter | Up 26 minutes
+firewatch_node_exporter | Up 26 minutes
+firewatch_mysqld_exporter | Exited (2) 39 minutes ago
+firewatch_haproxy | Exited (137) 39 minutes ago
+api1 | Exited (137) 38 minutes ago
+flask1 | Exited (137) 39 minutes ago
+flask2 | Exited (137) 39 minutes ago
+api3 | Exited (137) 38 minutes ago
+api2 | Exited (137) 38 minutes ago
+firewatch_db_init | Exited (0) 45 minutes ago
+firewatch_redis_exporter | Up 25 minutes
+firewatch_grafana | Up 25 minutes
+firewatch_redis | Up 26 minutes
+firewatch_prometheus | Up 26 minutes
+firewatch_frontend | Up 26 minutes
+firewatch_db | Up 26 minutes (healthy)
+firewatch_cadvisor | Up 26 minutes (healthy)
+ServerAPI | Up About an hour
+determined_curie | Exited (255) 12 hours ago
+ServerBD | Up 5 hours (healthy)
+ 
+=== IMAGENES === 
+firewatch_qro-firewall-exporter latest 90.8MB
+firewatch_qro-db-init latest 368MB
+firewatch_qro-api1 latest 368MB
+firewatch_qro-api3 latest 368MB
+firewatch_qro-flask2 latest 368MB
+firewatch_qro-api2 latest 368MB
+firewatch_qro-flask1 latest 368MB
+firewatch_qro-frontend latest 75MB
+firewatch_qro-backend latest 365MB
+alpine/openssl latest 14.2MB
+miapi-api latest 262MB
+prom/prometheus latest 359MB
+redis 7-alpine 57.8MB
+oliver006/redis_exporter latest 16.7MB
+grafana/grafana latest 1.58GB
+postgres 15 633MB
+mysql 8.0 1.1GB
+prom/mysqld-exporter latest 34.1MB
+gcr.io/cadvisor/cadvisor latest 107MB
+haproxy 2.9-alpine 41.4MB
+prom/mysqld-exporter v0.15.1 31.1MB
+prom/node-exporter v1.7.0 37.4MB

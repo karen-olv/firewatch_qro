@@ -1,0 +1,13 @@
+45:#3 DONE 10.7s
+153:#16 DONE 145.8s
+156:#17 DONE 1.2s
+298:#21 DONE 19.6s
+390:#23 naming to docker.io/library/firewatch_qro-api1:latest
+399:#22 naming to docker.io/library/firewatch_qro-api3:latest
+400:#22 naming to docker.io/library/firewatch_qro-api3:latest 2.5s done
+405:#23 naming to docker.io/library/firewatch_qro-api1:latest 2.8s done
+412:#24 naming to docker.io/library/firewatch_qro-flask1:latest
+421:#25 naming to docker.io/library/firewatch_qro-api2:latest 1.8s done
+428:#26 naming to docker.io/library/firewatch_qro-flask2:latest 1.2s done
+439:#27 naming to docker.io/library/firewatch_qro-db-init:latest 0.8s done
+444:#24 naming to docker.io/library/firewatch_qro-flask1:latest 2.2s done

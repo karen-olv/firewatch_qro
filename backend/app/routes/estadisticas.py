@@ -7,15 +7,30 @@ from app.models import Municipio, Zona, Incendio
 bp = Blueprint("estadisticas", __name__, url_prefix="/api")
 
 
+@bp.get("/zonas")
+def listar_zonas():
+    """
+    Listar todas las zonas de monitoreo (con su municipio).
+    ---
+    tags:
+      - Estadísticas
+    responses:
+      200:
+        description: Lista de zonas
+    """
+    zonas = Zona.query.order_by(Zona.nombre).all()
+    return jsonify([z.to_dict() for z in zonas])
+
+
 @bp.get("/municipios")
 def listar_municipios():
     """
     Listar municipios de Querétaro.
     ---
     tags:
-- Estadísticas
+      - Estadísticas
     responses:
-200:
+      200:
         description: Lista de municipios
     """
     municipios = Municipio.query.order_by(Municipio.nombre).all()
@@ -28,16 +43,16 @@ def top_municipios():
     Municipios con más incendios registrados (histórico).
     ---
     tags:
-Estadísticas
+      - Estadísticas
     parameters:
-- name: limit
+      - name: limit
         in: query
         type: integer
         required: false
         default: 6
         description: Número máximo de municipios a devolver
     responses:
-200:
+      200:
         description: Ranking de municipios por incendios
     """
     resultados = (
@@ -59,16 +74,16 @@ def tendencia_incendios():
     Serie de incendios agrupados por mes para graficar tendencia.
     ---
     tags:
-- Estadísticas
+      - Estadísticas
     parameters:
-- name: meses
+      - name: meses
         in: query
         type: integer
         required: false
         default: 12
         description: Cuántos meses hacia atrás se consultan
     responses:
-200:
+      200:
         description: Serie de incendios por periodo (YYYY-MM)
     """
     meses = int(request.args.get("meses", 12))
@@ -94,9 +109,9 @@ def resumen_kpis():
     KPIs principales del dashboard.
     ---
     tags:
-- Estadísticas
+      - Estadísticas
     responses:
-200:
+      200:
         description: Resumen con incendios activos, riesgo alto, zonas y municipios
     """
     incendios_activos = Incendio.query.filter_by(estado="activo").count()

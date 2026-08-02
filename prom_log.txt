@@ -1,0 +1,15 @@
+time=2026-08-01T23:52:21.987Z level=INFO source=tls_config.go:354 msg="Listening on" component=web address=[::]:9090
+time=2026-08-01T23:52:21.987Z level=INFO source=tls_config.go:357 msg="TLS is disabled." component=web http2=false address=[::]:9090
+time=2026-08-01T23:52:22.029Z level=INFO source=head.go:709 msg="Replaying on-disk memory mappable chunks if any" component=tsdb
+time=2026-08-01T23:52:22.035Z level=INFO source=head.go:795 msg="On-disk memory mappable chunks replay completed" component=tsdb duration=4.897554ms
+time=2026-08-01T23:52:22.035Z level=INFO source=head.go:803 msg="Replaying WAL, this may take a while" component=tsdb
+time=2026-08-01T23:52:23.556Z level=INFO source=head.go:898 msg="WAL segment loaded" component=tsdb segment=0 maxSegment=1 duration=1.521222437s
+time=2026-08-01T23:52:23.578Z level=INFO source=head.go:898 msg="WAL segment loaded" component=tsdb segment=1 maxSegment=1 duration=20.616874ms
+time=2026-08-01T23:52:23.578Z level=INFO source=head.go:935 msg="WAL replay completed" component=tsdb checkpoint_replay_duration=345.565µs wal_replay_duration=1.542764132s wbl_replay_duration=551ns chunk_snapshot_load_duration=0s mmap_chunk_replay_duration=4.897554ms total_replay_duration=1.548210179s
+time=2026-08-01T23:52:23.687Z level=INFO source=main.go:1483 msg="filesystem information" fs_type=EXT4_SUPER_MAGIC
+time=2026-08-01T23:52:23.687Z level=INFO source=main.go:1486 msg="TSDB started"
+time=2026-08-01T23:52:23.688Z level=INFO source=main.go:1684 msg="Loading configuration file" filename=/etc/prometheus/prometheus.yml
+time=2026-08-01T23:52:23.726Z level=INFO source=main.go:1100 msg="TSDB retention updated" duration=15d size=0B percentage=0
+time=2026-08-01T23:52:23.743Z level=INFO source=main.go:1723 msg="Completed loading of configuration file" db_storage=392.666µs remote_storage=4.14µs web_handler=1.503µs query_engine=2.726µs scrape=855.677µs scrape_sd=5.190872ms notify=5.272µs notify_sd=7.869µs rules=110.48µs tracing=446.533µs filename=/etc/prometheus/prometheus.yml totalDuration=54.990797ms
+time=2026-08-01T23:52:23.743Z level=INFO source=manager.go:211 msg="Starting rule manager..." component="rule manager"
+time=2026-08-01T23:52:23.743Z level=INFO source=main.go:1447 msg="Server is ready to receive web requests."

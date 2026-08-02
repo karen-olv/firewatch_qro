@@ -1,0 +1,19 @@
+=== CONTENIDO /etc/mysql/.my.cnf === 
+[client]
+user=exporter
+password=exporter_pass
+host=db
+port=3306
+
+=== PROBAR USUARIO exporter desde exporter container === 
+sh: mysql: not found
+=== VER USUARIOS EN MYSQL === 
+mysql: [Warning] Using a password on the command line interface can be insecure.
+user	host	plugin
+exporter		caching_sha2_password
+firewatch_user	%	caching_sha2_password
+root	%	caching_sha2_password
+mysql.infoschema	localhost	caching_sha2_password
+mysql.session	localhost	caching_sha2_password
+mysql.sys	localhost	caching_sha2_password
+root	localhost	caching_sha2_password

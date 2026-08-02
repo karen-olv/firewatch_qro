@@ -1,0 +1,15 @@
+ts=2026-08-02T00:12:49.898Z caller=mysqld_exporter.go:220 level=info msg="Starting mysqld_exporter" version="(version=0.15.1, branch=HEAD, revision=cc349684494b5038ec5a52233bdca9eb9291e6f2)"
+ts=2026-08-02T00:12:49.898Z caller=mysqld_exporter.go:221 level=info msg="Build context" build_context="(go=go1.21.5, platform=linux/amd64, user=root@d89c15b9f5ad, date=20231212-07:55:09, tags=unknown)"
+ts=2026-08-02T00:12:50.047Z caller=mysqld_exporter.go:233 level=info msg="Scraper enabled" scraper=global_status
+ts=2026-08-02T00:12:50.047Z caller=mysqld_exporter.go:233 level=info msg="Scraper enabled" scraper=global_variables
+ts=2026-08-02T00:12:50.047Z caller=mysqld_exporter.go:233 level=info msg="Scraper enabled" scraper=slave_status
+ts=2026-08-02T00:12:50.047Z caller=mysqld_exporter.go:233 level=info msg="Scraper enabled" scraper=info_schema.innodb_cmp
+ts=2026-08-02T00:12:50.047Z caller=mysqld_exporter.go:233 level=info msg="Scraper enabled" scraper=info_schema.innodb_cmpmem
+ts=2026-08-02T00:12:50.047Z caller=mysqld_exporter.go:233 level=info msg="Scraper enabled" scraper=info_schema.query_response_time
+ts=2026-08-02T00:12:50.051Z caller=tls_config.go:274 level=info msg="Listening on" address=[::]:9104
+ts=2026-08-02T00:12:50.051Z caller=tls_config.go:277 level=info msg="TLS is disabled." http2=false address=[::]:9104
+ts=2026-08-02T00:12:53.034Z caller=exporter.go:152 level=error msg="Error pinging mysqld" err="Error 1045 (28000): Access denied for user 'exporter'@'172.22.0.15' (using password: YES)"
+ts=2026-08-02T00:12:59.200Z caller=exporter.go:152 level=error msg="Error pinging mysqld" err="Error 1045 (28000): Access denied for user 'exporter'@'172.22.0.15' (using password: YES)"
+ts=2026-08-02T00:13:08.996Z caller=exporter.go:152 level=error msg="Error pinging mysqld" err="Error 1045 (28000): Access denied for user 'exporter'@'172.22.0.15' (using password: YES)"
+ts=2026-08-02T00:13:19.098Z caller=exporter.go:152 level=error msg="Error pinging mysqld" err="Error 1045 (28000): Access denied for user 'exporter'@'172.22.0.15' (using password: YES)"
+ts=2026-08-02T00:13:28.986Z caller=exporter.go:152 level=error msg="Error pinging mysqld" err="Error 1045 (28000): Access denied for user 'exporter'@'172.22.0.15' (using password: YES)"

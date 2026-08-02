@@ -1,0 +1,71 @@
+=== UP STACK === 
+ Container firewatch_firewall_exporter Running 
+ Container firewatch_prometheus Running 
+ Container firewatch_mysqld_exporter Running 
+ Container firewatch_db_init Running 
+ Container firewatch_frontend Running 
+ Container firewatch_db Running 
+ Container firewatch_cadvisor Running 
+ Container firewatch_grafana Running 
+ Container firewatch_node_exporter Running 
+ Container firewatch_redis_exporter Running 
+ Container firewatch_redis Running 
+ Container firewatch_db Waiting 
+ Container firewatch_db Waiting 
+ Container firewatch_db Healthy 
+ Container firewatch_db Waiting 
+ Container firewatch_db_init Waiting 
+ Container firewatch_db Waiting 
+ Container firewatch_db_init Waiting 
+ Container firewatch_db Waiting 
+ Container firewatch_db_init Waiting 
+ Container firewatch_db Waiting 
+ Container firewatch_db_init Waiting 
+ Container firewatch_db Waiting 
+ Container firewatch_db_init Waiting 
+ Container firewatch_db Healthy 
+ Container firewatch_db Healthy 
+ Container firewatch_db Healthy 
+ Container firewatch_db Healthy 
+ Container firewatch_db Healthy 
+ Container firewatch_db Healthy 
+ Container firewatch_db_init Exited 
+ Container flask2 Starting 
+ Container firewatch_db_init Exited 
+ Container flask1 Starting 
+ Container firewatch_db_init Exited 
+ Container api1 Starting 
+ Container firewatch_db_init Exited 
+ Container api3 Starting 
+ Container firewatch_db_init Exited 
+ Container api2 Starting 
+ Container flask2 Started 
+ Container flask1 Started 
+ Container api3 Started 
+ Container api2 Started 
+ Container api1 Started 
+ Container firewatch_haproxy Starting 
+ Container firewatch_haproxy Started 
+UP_EXIT_0 
+ 
+=== ESPERANDO 15s === 
+ 
+=== ESTADO CONTENEDORES === 
+api3 | Up 34 seconds | 0.0.0.0:8003->5000/tcp, [::]:8003->5000/tcp
+flask1 | Up 34 seconds | 0.0.0.0:5001->5001/tcp, [::]:5001->5001/tcp
+api2 | Up 34 seconds | 0.0.0.0:8002->5000/tcp, [::]:8002->5000/tcp
+api1 | Up 33 seconds | 0.0.0.0:8001->5000/tcp, [::]:8001->5000/tcp
+flask2 | Up 34 seconds | 0.0.0.0:5002->5002/tcp, [::]:5002->5002/tcp
+firewatch_firewall_exporter | Up About a minute | 
+firewatch_node_exporter | Up 36 minutes | 9100/tcp
+firewatch_mysqld_exporter | Up About a minute | 9104/tcp
+firewatch_haproxy | Up 26 seconds | 0.0.0.0:80->80/tcp, [::]:80->80/tcp, 0.0.0.0:443->443/tcp, [::]:443->443/tcp, 0.0.0.0:8080->8080/tcp, [::]:8080->8080/tcp, 0.0.0.0:8404-8405->8404-8405/tcp, [::]:8404-8405->8404-8405/tcp
+firewatch_redis_exporter | Up 35 minutes | 9121/tcp
+firewatch_grafana | Up 35 minutes | 3000/tcp
+firewatch_redis | Up 36 minutes | 6379/tcp
+firewatch_prometheus | Up 36 minutes | 0.0.0.0:9090->9090/tcp, [::]:9090->9090/tcp
+firewatch_frontend | Up 36 minutes | 80/tcp
+firewatch_db | Up 36 minutes (healthy) | 3306/tcp, 33060/tcp
+firewatch_cadvisor | Up 36 minutes (healthy) | 8080/tcp
+ServerAPI | Up About an hour | 0.0.0.0:5000->5000/tcp, [::]:5000->5000/tcp
+ServerBD | Up 5 hours (healthy) | 0.0.0.0:5434->5432/tcp, [::]:5434->5432/tcp

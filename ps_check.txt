@@ -1,0 +1,3 @@
+ServerAPI Exited (0) 17 hours ago
+determined_curie Exited (255) 9 hours ago
+ServerBD Up 2 hours (healthy)

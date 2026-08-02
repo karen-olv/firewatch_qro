@@ -1,0 +1,8 @@
+ts=2026-08-02T00:17:18.961Z caller=exporter.go:152 level=error msg="Error pinging mysqld" err="Error 1045 (28000): Access denied for user 'exporter'@'172.22.0.15' (using password: YES)"
+ts=2026-08-02T00:17:29.263Z caller=exporter.go:152 level=error msg="Error pinging mysqld" err="Error 1045 (28000): Access denied for user 'exporter'@'172.22.0.15' (using password: YES)"
+ts=2026-08-02T00:17:39.223Z caller=exporter.go:152 level=error msg="Error pinging mysqld" err="Error 1045 (28000): Access denied for user 'exporter'@'172.22.0.15' (using password: YES)"
+ts=2026-08-02T00:17:49.023Z caller=exporter.go:152 level=error msg="Error pinging mysqld" err="Error 1045 (28000): Access denied for user 'exporter'@'172.22.0.15' (using password: YES)"
+ts=2026-08-02T00:17:58.936Z caller=exporter.go:152 level=error msg="Error pinging mysqld" err="Error 1045 (28000): Access denied for user 'exporter'@'172.22.0.15' (using password: YES)"
+ts=2026-08-02T00:18:08.985Z caller=exporter.go:152 level=error msg="Error pinging mysqld" err="Error 1045 (28000): Access denied for user 'exporter'@'172.22.0.15' (using password: YES)"
+ts=2026-08-02T00:18:18.928Z caller=exporter.go:152 level=error msg="Error pinging mysqld" err="Error 1045 (28000): Access denied for user 'exporter'@'172.22.0.15' (using password: YES)"
+ts=2026-08-02T00:18:29.040Z caller=exporter.go:152 level=error msg="Error pinging mysqld" err="Error 1045 (28000): Access denied for user 'exporter'@'172.22.0.15' (using password: YES)"
