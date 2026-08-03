@@ -47,8 +47,15 @@ def init_db():
         print("[init_db] Creando tablas...")
         db.create_all()
 
-        # Si la BD está vacía (sin municipios), sembrar datos demo
-        if Municipio.query.first() is None:
+        # Si la BD está vacía (sin municipios), sembrar datos demo.
+        # db.session.remove() libera la conexión/transacción abierta por la
+        # consulta anterior antes de que seed_run() haga drop_all()/create_all(),
+        # que puede usar una conexión distinta del pool y quedarse esperando
+        # indefinidamente el lock que la primera conexión nunca soltó.
+        bd_vacia = Municipio.query.first() is None
+        db.session.remove()
+
+        if bd_vacia:
             print("[init_db] BD vacía -> sembrando datos de ejemplo (seed)...")
             from seed import run as seed_run
 
