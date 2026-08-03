@@ -44,14 +44,13 @@ def create_app():
     db.init_app(app)
     jwt.init_app(app)
 
-    # Prometheus (skip in test mode)
-    if not app.config.get('TESTING'):
-        metrics = PrometheusMetrics(app, group_by="endpoint")
-        metrics.info(
-            "firewatch_api_info",
-            "Información de la API FireWatch QRO",
-            version="1.0.0",
-        )
+    # Prometheus
+    metrics = PrometheusMetrics(app, group_by="endpoint")
+    metrics.info(
+        "firewatch_api_info",
+        "Información de la API FireWatch QRO",
+        version="1.0.0",
+    )
 
     # Registrar Blueprints
     app.register_blueprint(incendios.bp)

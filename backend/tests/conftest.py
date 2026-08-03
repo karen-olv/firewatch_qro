@@ -1,6 +1,7 @@
-# Set test environment BEFORE importing app modules
+# Must be set before importing app.config, which reads them at class-body time
 import os
 os.environ['TESTING'] = '1'
+os.environ['DATABASE_URL'] = 'sqlite:///:memory:'
 
 import pytest
 from prometheus_client import REGISTRY
@@ -12,17 +13,15 @@ from app.models import Usuario
 
 @pytest.fixture
 def app():
-    # Clear Prometheus metrics for clean state
-    for collector in list(REGISTRY._collector_to_names.keys()):
-        try:
-            REGISTRY.unregister(collector)
-        except Exception:
-            pass
+    # create_app() registers Prometheus collectors against the global REGISTRY,
+    # so every fixture instance would raise DuplicateTimeseries without this.
+    for collector in list(REGISTRY._collector_to_names):
+        REGISTRY.unregister(collector)
 
     flask_app = create_app()
     flask_app.config.update(
         TESTING=True,
-        JWT_SECRET_KEY="test-secret",
+        JWT_SECRET_KEY="test-secret-key-at-least-32-bytes-long",
     )
 
     with flask_app.app_context():
