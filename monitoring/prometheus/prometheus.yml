@@ -20,10 +20,10 @@ scrape_configs:
           - "flask1:5001"
           - "flask2:5002"
 
-  # MySQL
-  - job_name: "mysql"
+  # PostgreSQL
+  - job_name: "postgres"
     static_configs:
-      - targets: ["mysqld-exporter:9104"]
+      - targets: ["postgres-exporter:9187"]
 
   # Redis
   - job_name: "redis"

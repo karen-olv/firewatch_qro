@@ -14,3 +14,7 @@ node_modules/
 
 # Logs
 *.log
+
+# Secretos SSL (clave privada y bundle combinado) - el .crt público se mantiene
+deploy/ssl/certs/*.key
+deploy/ssl/certs/*.pem

@@ -79,15 +79,33 @@ def crear_reporte():
             {"error": "Faltan datos obligatorios (zona_id, descripcion)"}
         ), 400
 
-    # 2. Validar que la zona_id realmente exista en tu BD
-    zona_existe = Zona.query.get(data.get('zona_id'))
+    # 2. Validar formato/longitud de los campos
+    zona_id = data.get('zona_id')
+    if not isinstance(zona_id, int) or isinstance(zona_id, bool):
+        return jsonify({"error": "zona_id debe ser un entero"}), 400
+
+    descripcion = data.get('descripcion')
+    if not isinstance(descripcion, str) or not (10 <= len(descripcion.strip()) <= 500):
+        return jsonify(
+            {"error": "descripcion debe tener entre 10 y 500 caracteres"}
+        ), 400
+
+    nombre_reportante = data.get("nombre_reportante", data.get("nombre"))
+    if nombre_reportante and len(str(nombre_reportante).strip()) < 3:
+        return jsonify(
+            {"error": "nombre_reportante debe tener al menos 3 caracteres"}
+        ), 400
+
+    # 3. Validar que la zona_id realmente exista en tu BD
+    zona_existe = Zona.query.get(zona_id)
     if not zona_existe:
-        return jsonify({"error": f"La zona con ID {data.get('zona_id')} no exist."}), 404
+        return jsonify({"error": f"La zona con ID {zona_id} no exist."}), 404
 
     # 3. Crear el registro
     reporte = Reporte(
-        nombre_reportante=data.get(
-            "nombre_reportante", data.get("nombre", "Anónimo")),
+        nombre_reportante=(
+            data.get("nombre_reportante", data.get("nombre")) or "Anónimo"
+        ),
         zona_id=data.get("zona_id"),
         descripcion=data.get("descripcion"),
         es_critico=data.get("es_critico", False),

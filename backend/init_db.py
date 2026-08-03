@@ -1,7 +1,7 @@
 """
 Inicializa la base de datos antes de arrancar el servidor.
 
-- Espera a que MySQL esté listo (con reintentos).
+- Espera a que la base de datos (PostgreSQL) esté lista (con reintentos).
 - Crea todas las tablas (no destructivo, usa create_all).
 - Si no hay municipios (BD vacía), ejecuta el seed con datos demo.
 
@@ -31,14 +31,14 @@ def wait_for_database():
             try:
                 db.session.execute(text("SELECT 1"))
                 print(
-                    f"[init_db] Conexión a MySQL establecida (intento {intento}).")
+                    f"[init_db] Conexión a PostgreSQL establecida (intento {intento}).")
                 return
             except Exception as exc:  # noqa: BLE001
                 print(
-                    f"[init_db] MySQL no está listo (intento {intento}/{RETRY_ATTEMPTS}): {exc}"
+                    f"[init_db] PostgreSQL no está listo (intento {intento}/{RETRY_ATTEMPTS}): {exc}"
                 )
                 time.sleep(RETRY_DELAY_SECONDS)
-        print("[init_db] No se pudo conectar a MySQL. Abortando.")
+        print("[init_db] No se pudo conectar a PostgreSQL. Abortando.")
         sys.exit(1)
 
 
@@ -47,8 +47,15 @@ def init_db():
         print("[init_db] Creando tablas...")
         db.create_all()
 
-        # Si la BD está vacía (sin municipios), sembrar datos demo
-        if Municipio.query.first() is None:
+        # Si la BD está vacía (sin municipios), sembrar datos demo.
+        # db.session.remove() libera la conexión/transacción abierta por la
+        # consulta anterior antes de que seed_run() haga drop_all()/create_all(),
+        # que puede usar una conexión distinta del pool y quedarse esperando
+        # indefinidamente el lock que la primera conexión nunca soltó.
+        bd_vacia = Municipio.query.first() is None
+        db.session.remove()
+
+        if bd_vacia:
             print("[init_db] BD vacía -> sembrando datos de ejemplo (seed)...")
             from seed import run as seed_run
 

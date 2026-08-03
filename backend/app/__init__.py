@@ -5,7 +5,7 @@ from prometheus_flask_exporter import PrometheusMetrics
 from flasgger import Swagger
 
 from app.config import Config
-from app.extensions import db, jwt
+from app.extensions import db, jwt, limiter
 
 from app.routes import (
     incendios,
@@ -43,6 +43,7 @@ def create_app():
     # Inicializar extensiones
     db.init_app(app)
     jwt.init_app(app)
+    limiter.init_app(app)
 
     metrics = PrometheusMetrics(app, group_by="endpoint")
     try:

@@ -1,12 +1,16 @@
+import re
 from flask import Blueprint, request, jsonify
 from flask_jwt_extended import create_access_token, jwt_required, get_jwt_identity
-from app.extensions import db
+from app.extensions import db, limiter
 from app.models import Usuario
 
 bp = Blueprint("auth", __name__, url_prefix="/api/auth")
 
+EMAIL_RE = re.compile(r"^[^@\s]+@[^@\s]+\.[^@\s]+$")
+
 
 @bp.post("/registro")
+@limiter.limit("5 per minute")
 def registro():
     """
     Registrar un nuevo usuario.
@@ -44,22 +48,38 @@ def registro():
         description: El correo ya está registrado
     """
     data = request.get_json(force=True)
+    if not data:
+        return jsonify({"error": "Cuerpo de la petición inválido"}), 400
 
-    if Usuario.query.filter_by(email=data.get("email")).first():
+    nombre = data.get("nombre")
+    email = data.get("email")
+    password = data.get("password")
+
+    if not nombre or len(str(nombre).strip()) < 3:
+        return jsonify({"error": "nombre debe tener al menos 3 caracteres"}), 400
+
+    if not email or not EMAIL_RE.match(str(email)):
+        return jsonify({"error": "email inválido"}), 400
+
+    if not password or len(str(password)) < 8:
+        return jsonify({"error": "password debe tener al menos 8 caracteres"}), 400
+
+    if Usuario.query.filter_by(email=email).first():
         return jsonify({"error": "Ese correo ya está registrado"}), 400
 
     usuario = Usuario(
-        nombre=data.get("nombre"),
-        email=data.get("email"),
-        rol=data.get("rol", "ciudadano"),
+        nombre=nombre,
+        email=email,
+        rol="ciudadano",  # el rol nunca se acepta del cliente; solo un admin lo puede elevar despues
     )
-    usuario.set_password(data.get("password"))
+    usuario.set_password(password)
     db.session.add(usuario)
     db.session.commit()
     return jsonify(usuario.to_dict()), 201
 
 
 @bp.post("/login")
+@limiter.limit("5 per minute")
 def login():
     """
     Iniciar sesión y obtener un token JWT.

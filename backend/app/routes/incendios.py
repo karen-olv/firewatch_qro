@@ -1,6 +1,7 @@
 from flask import Blueprint, request, jsonify
 from app.extensions import db
 from app.models import Incendio, Zona  # <-- Importamos Zona
+from app.auth_utils import roles_required
 from datetime import datetime         # <-- Importamos datetime
 
 bp = Blueprint("incendios", __name__, url_prefix="/api/incendios")
@@ -34,6 +35,7 @@ def obtener_incendios():
 
 
 @bp.post("")
+@roles_required("admin", "proteccion_civil")
 def crear_incendio():
     """
     Registrar un nuevo incendio validado (usado por la app móvil).
