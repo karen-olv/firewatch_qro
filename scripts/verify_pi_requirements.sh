@@ -123,6 +123,16 @@ CODE_ADMIN=$(curl -s -o /dev/null -w "%{http_code}" -X POST "$BASE/api/incendios
 CODE_USUARIOS=$(curl -s -o /dev/null -w "%{http_code}" "$BASE/api/usuarios")
 [[ "$CODE_USUARIOS" == "401" ]] && pass "GET /api/usuarios sin token -> 401" || fail "GET /api/usuarios sin token -> $CODE_USUARIOS (esperado 401)"
 
+# Rate limiting (5/minuto en /api/auth/login) -- va al final de esta sección
+# porque una vez que el cliente se queda sin cupo, no puede loguearse de
+# nuevo por el resto del minuto. No depende de un número exacto de intento:
+# alcanza con disparar 6 seguidos y confirmar que el último da 429.
+RL_LAST=""
+for i in 1 2 3 4 5 6; do
+    RL_LAST=$(curl -s -o /dev/null -w "%{http_code}" -X POST "$BASE/api/auth/login" -H "Content-Type: application/json" -d '{"email":"admin@firewatchqro.mx","password":"incorrecta"}')
+done
+[[ "$RL_LAST" == "429" ]] && pass "rate limiting: 6to intento seguido de login -> 429 (límite 5/minuto, compartido vía Redis entre las 3 réplicas)" || fail "rate limiting: 6to intento dio $RL_LAST (esperado 429)"
+
 # ------------------------------------------------------------
 section "6. Certificado SSL"
 # ------------------------------------------------------------
