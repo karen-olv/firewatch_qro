@@ -1,6 +1,7 @@
 from flask import Blueprint, request, jsonify
 from app.extensions import db
 from app.models import Alerta, Incendio
+from app.auth_utils import roles_required
 
 bp = Blueprint("alertas", __name__, url_prefix="/api/alertas")
 
@@ -21,6 +22,7 @@ def listar_alertas():
 
 
 @bp.post("")
+@roles_required("admin", "proteccion_civil")
 def crear_alerta():
     """
     Crear una alerta vinculada a un incendio.
