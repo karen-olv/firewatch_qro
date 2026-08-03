@@ -47,6 +47,8 @@ def registro():
         description: El correo ya está registrado
     """
     data = request.get_json(force=True)
+    if not data:
+        return jsonify({"error": "Cuerpo de la petición inválido"}), 400
 
     nombre = data.get("nombre")
     email = data.get("email")
@@ -67,7 +69,7 @@ def registro():
     usuario = Usuario(
         nombre=nombre,
         email=email,
-        rol=data.get("rol", "ciudadano"),
+        rol="ciudadano",  # el rol nunca se acepta del cliente; solo un admin lo puede elevar despues
     )
     usuario.set_password(password)
     db.session.add(usuario)

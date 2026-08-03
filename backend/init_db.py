@@ -1,7 +1,7 @@
 """
 Inicializa la base de datos antes de arrancar el servidor.
 
-- Espera a que MySQL esté listo (con reintentos).
+- Espera a que la base de datos (PostgreSQL) esté lista (con reintentos).
 - Crea todas las tablas (no destructivo, usa create_all).
 - Si no hay municipios (BD vacía), ejecuta el seed con datos demo.
 
@@ -31,14 +31,14 @@ def wait_for_database():
             try:
                 db.session.execute(text("SELECT 1"))
                 print(
-                    f"[init_db] Conexión a MySQL establecida (intento {intento}).")
+                    f"[init_db] Conexión a PostgreSQL establecida (intento {intento}).")
                 return
             except Exception as exc:  # noqa: BLE001
                 print(
-                    f"[init_db] MySQL no está listo (intento {intento}/{RETRY_ATTEMPTS}): {exc}"
+                    f"[init_db] PostgreSQL no está listo (intento {intento}/{RETRY_ATTEMPTS}): {exc}"
                 )
                 time.sleep(RETRY_DELAY_SECONDS)
-        print("[init_db] No se pudo conectar a MySQL. Abortando.")
+        print("[init_db] No se pudo conectar a PostgreSQL. Abortando.")
         sys.exit(1)
 
 

@@ -81,7 +81,7 @@ def crear_reporte():
 
     # 2. Validar formato/longitud de los campos
     zona_id = data.get('zona_id')
-    if not isinstance(zona_id, int):
+    if not isinstance(zona_id, int) or isinstance(zona_id, bool):
         return jsonify({"error": "zona_id debe ser un entero"}), 400
 
     descripcion = data.get('descripcion')
@@ -103,8 +103,9 @@ def crear_reporte():
 
     # 3. Crear el registro
     reporte = Reporte(
-        nombre_reportante=data.get(
-            "nombre_reportante", data.get("nombre", "Anónimo")),
+        nombre_reportante=(
+            data.get("nombre_reportante", data.get("nombre")) or "Anónimo"
+        ),
         zona_id=data.get("zona_id"),
         descripcion=data.get("descripcion"),
         es_critico=data.get("es_critico", False),

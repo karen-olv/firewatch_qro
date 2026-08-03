@@ -1,9 +1,15 @@
 =========================================================
  ACTUALIZACIÓN DEL BACKEND Y APP MÓVIL - FIREWATCH QRO
 =========================================================
-Qué onda equipo. Ya quedó lista al 100% la base de datos (MySQL)
+Qué onda equipo. Ya quedó lista al 100% la base de datos (PostgreSQL)
 y la conexión del Backend (Flask). Ya pueden mandar datos reales
 y se van a guardar directo, con todas las validaciones que pidió el profe.
+
+Si van a levantar todo con `docker compose up -d --build` (en vez de las 3
+terminales de abajo), corran primero, una sola vez, `bash deploy/ssl/gen_cert.sh`
+para generar `deploy/ssl/certs/firewatch.pem` — ese archivo no está en el repo
+(está en .gitignore) y sin él el contenedor de HAProxy no arranca porque
+necesita ese cert para el bind de TLS.
 
 También ya dejé creada la carpeta base para la aplicación móvil en Expo.
 
