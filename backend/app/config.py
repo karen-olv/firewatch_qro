@@ -5,12 +5,12 @@ load_dotenv()
 
 
 class Config:
-    # Por defecto apunta a MySQL expuesto en el host (puerto 3307).
-    # Dentro de Docker, docker-compose sobreescribe con db:3306.
+    # Por defecto apunta a PostgreSQL expuesto en la red privada de Docker.
+    # Dentro de Docker, docker-compose sobreescribe con db:5432.
     SQLALCHEMY_DATABASE_URI = os.getenv(
         'DATABASE_URL',
-        'mysql+pymysql://firewatch_user:firewatch_pass'
-        '@localhost:3307/firewatch_qro'
+        'postgresql+psycopg2://firewatch_user:firewatch_pass'
+        '@localhost:5432/firewatch_qro'
     )
     SQLALCHEMY_TRACK_MODIFICATIONS = False
     SECRET_KEY = os.getenv("SECRET_KEY", "dev-secret-key")

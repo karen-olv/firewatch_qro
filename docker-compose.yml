@@ -9,33 +9,31 @@ networks:
     driver: bridge
 
 volumes:
-  mysql_data:
+  pg_data:
   grafana_data:
   prometheus_data:
   firewall_textfile:
 
 services:
   # =============================================================
-  #  RED PRIVADA 1/2: MySQL + Redis
+  #  RED PRIVADA 1/2: PostgreSQL + Redis
   # =============================================================
   db:
-    image: mysql:8.0
+    image: postgres:16-alpine
     container_name: firewatch_db
     restart: always
     environment:
-      MYSQL_ROOT_PASSWORD: rootpassword
-      MYSQL_DATABASE: firewatch_qro
-      MYSQL_USER: firewatch_user
-      MYSQL_PASSWORD: firewatch_pass
+      POSTGRES_DB: firewatch_qro
+      POSTGRES_USER: firewatch_user
+      POSTGRES_PASSWORD: firewatch_pass
     volumes:
-      - mysql_data:/var/lib/mysql
-      - ./db/init.sql:/docker-entrypoint-initdb.d/init.sql:ro
+      - pg_data:/var/lib/postgresql/data
     networks:
       - private_net
     expose:
-      - "3306"
+      - "5432"
     healthcheck:
-      test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-uroot", "-prootpassword"]
+      test: ["CMD-SHELL", "pg_isready -U firewatch_user -d firewatch_qro"]
       interval: 10s
       timeout: 5s
       retries: 10
@@ -61,7 +59,7 @@ services:
     command: python init_db.py
     restart: "no"
     environment:
-      DATABASE_URL: mysql+pymysql://firewatch_user:firewatch_pass@db:3306/firewatch_qro
+      DATABASE_URL: postgresql+psycopg2://firewatch_user:firewatch_pass@db:5432/firewatch_qro
       JWT_SECRET_KEY: cambia-esta-clave-jwt-por-otra-propia
       SECRET_KEY: clave-super-secreta-firewatch-2026
       REDIS_URL: redis://redis:6379/0
@@ -82,7 +80,7 @@ services:
     container_name: api1
     restart: always
     environment: &api_env
-      DATABASE_URL: mysql+pymysql://firewatch_user:firewatch_pass@db:3306/firewatch_qro
+      DATABASE_URL: postgresql+psycopg2://firewatch_user:firewatch_pass@db:5432/firewatch_qro
       JWT_SECRET_KEY: cambia-esta-clave-jwt-por-otra-propia
       SECRET_KEY: clave-super-secreta-firewatch-2026
       REDIS_URL: redis://redis:6379/0
@@ -194,24 +192,19 @@ services:
     ports:
       - "9090:9090"
 
-  mysqld-exporter:
-    image: prom/mysqld-exporter:v0.15.1
-    container_name: firewatch_mysqld_exporter
+  postgres-exporter:
+    image: quay.io/prometheuscommunity/postgres-exporter:v0.15.0
+    container_name: firewatch_postgres_exporter
     restart: always
     environment:
-      # v0.15.x lee las credenciales desde el archivo .my.cnf
-      - MYSQLD_EXPORTER_PASSWORD=exporter_pass
-    command:
-      - '--config.my-cnf=/etc/mysql/.my.cnf'
-    volumes:
-      - ./monitoring/mysql/.my.cnf:/etc/mysql/.my.cnf:ro
+      - DATA_SOURCE_NAME=postgresql://firewatch_user:firewatch_pass@db:5432/firewatch_qro?sslmode=disable
     depends_on:
       db:
         condition: service_healthy
     networks:
       - private_net
     expose:
-      - "9104"
+      - "9187"
 
   redis-exporter:
     image: oliver006/redis_exporter:latest
