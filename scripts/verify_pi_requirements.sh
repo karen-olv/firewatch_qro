@@ -88,7 +88,19 @@ print(json.loads(d).get('State', '') if d else '')
 if [[ "$FW_STATUS" == "running" ]]; then
     pass "firewall-exporter corriendo (monitoreo de firewall activo)"
 else
-    fail "firewall-exporter NO está corriendo (estado: ${FW_STATUS:-desconocido}) -- issue pre-existente, requiere host Linux con ufw/iptables reales, no funciona sobre Docker Desktop/Windows"
+    fail "firewall-exporter NO está corriendo (estado: ${FW_STATUS:-desconocido})"
+fi
+
+FW_METRIC=$(curl -s "http://localhost:9090/api/v1/query?query=firewall_public_ports_open" 2>/dev/null | python -c "
+import sys, json
+d = json.load(sys.stdin)
+r = d['data']['result']
+print(r[0]['value'][1] if r else '')
+" 2>/dev/null)
+if [[ -n "$FW_METRIC" ]]; then
+    pass "métricas de firewall llegan a Prometheus (firewall_public_ports_open=$FW_METRIC), pipeline exporter->node-exporter->Prometheus->Grafana completo"
+else
+    fail "métricas de firewall no llegan a Prometheus (firewall_public_ports_open sin datos)"
 fi
 
 # ------------------------------------------------------------

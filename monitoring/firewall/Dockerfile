@@ -13,7 +13,8 @@ RUN apk add --no-cache iptables iproute2
 WORKDIR /opt/firewatch
 COPY firewall_metrics.py .
 COPY run.sh .
-RUN chmod +x run.sh firewall_metrics.py
+# Normaliza CRLF->LF (checkouts en Windows dejan CRLF, rompe el shebang exec)
+RUN sed -i 's/\r$//' run.sh firewall_metrics.py && chmod +x run.sh firewall_metrics.py
 
 EXPOSE 0
 ENTRYPOINT ["./run.sh"]
