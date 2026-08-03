@@ -1224,6 +1224,109 @@ git commit -m "fix: seed.py no longer creates a duplicate Flask app, fixes db-in
 
 ---
 
+### Task 8: Fix db-init self-deadlock on first boot
+
+**Files:**
+- Modify: `backend/init_db.py:45-56` (`init_db()` function body)
+
+**Interfaces:**
+- None — leaf task, no interfaces consumed or produced.
+
+**Background:** Task 7 fixed the `DuplicateTimeseries` crash, which unmasked a second pre-existing bug: `init_db()` calls `Municipio.query.first()`, which opens an ORM session/transaction on a connection checked out from the pool (never committed, closed, or removed). It then calls `seed_run()` (still inside the same `with app.app_context():` block), whose `db.drop_all()`/`db.create_all()` grab DDL locks via the engine — on Postgres this can pull a *different* pooled connection while the first one sits idle-in-transaction holding a read lock on the same table. The DROP then waits forever for a lock the first connection never releases: `db-init` hangs indefinitely instead of exiting, so `api1-3`/`flask1-2`/`haproxy` (which all `depends_on: db-init: condition: service_completed_successfully`) never start either.
+
+- [ ] **Step 1: Read current `backend/init_db.py` in full to confirm line numbers before editing**
+
+Confirm `init_db()` (starting around line 45) looks like:
+
+```python
+def init_db():
+    with app.app_context():
+        print("[init_db] Creando tablas...")
+        db.create_all()
+
+        # Si la BD está vacía (sin municipios), sembrar datos demo
+        if Municipio.query.first() is None:
+            print("[init_db] BD vacía -> sembrando datos de ejemplo (seed)...")
+            from seed import run as seed_run
+
+            seed_run()
+        else:
+            print("[init_db] La BD ya tiene datos, no se vuelve a sembrar.")
+```
+
+If it doesn't match (e.g. Task 7 changed something here unexpectedly), stop and report NEEDS_CONTEXT rather than guessing.
+
+- [ ] **Step 2: Release the session/connection between the emptiness check and seeding**
+
+Replace the `init_db()` function with:
+
+```python
+def init_db():
+    with app.app_context():
+        print("[init_db] Creando tablas...")
+        db.create_all()
+
+        # Si la BD está vacía (sin municipios), sembrar datos demo.
+        # db.session.remove() libera la conexión/transacción abierta por la
+        # consulta anterior antes de que seed_run() haga drop_all()/create_all(),
+        # que puede usar una conexión distinta del pool y quedarse esperando
+        # indefinidamente el lock que la primera conexión nunca soltó.
+        bd_vacia = Municipio.query.first() is None
+        db.session.remove()
+
+        if bd_vacia:
+            print("[init_db] BD vacía -> sembrando datos de ejemplo (seed)...")
+            from seed import run as seed_run
+
+            seed_run()
+        else:
+            print("[init_db] La BD ya tiene datos, no se vuelve a sembrar.")
+```
+
+- [ ] **Step 3: Run the backend pytest suite to confirm no regression**
+
+Run (from `backend/`): `python -m pytest tests/ -v`
+Expected: 16/16 passing.
+
+- [ ] **Step 4: Full clean rebuild to confirm the deadlock is actually gone**
+
+```bash
+docker compose down -v
+docker compose up -d --build
+```
+
+Wait roughly 30-40 seconds, then:
+
+Run: `docker compose ps`
+Expected: `db` healthy, `db-init` **Exited (0)** (not stuck in a non-exiting state), `api1`/`api2`/`api3` show `Up`.
+
+Run: `docker compose logs db-init | tail -20`
+Expected: ends with `[init_db] Inicialización completada ✅`.
+
+Run: `curl -s http://localhost:8080/api/health`
+Expected: `{"status":"ok","servicio":"FireWatch QRO API"}`
+
+Run: `curl -s -X POST http://localhost:8080/api/auth/login -H "Content-Type: application/json" -d '{"email":"admin@firewatchqro.mx","password":"admin123"}'`
+Expected: JSON containing `"access_token"` — confirms seeding actually completed this time.
+
+Run: `curl -s -o /dev/null -w "%{http_code}\n" -X POST http://localhost:8080/api/reportes -H "Content-Type: application/json" -d '{"zona_id":1,"descripcion":"corto"}'`
+Expected: `400` (Task 2's server-side validation, confirms full request path works end to end).
+
+- [ ] **Step 5: Tear down**
+
+```bash
+docker compose down
+```
+
+- [ ] **Step 6: Commit**
+
+```bash
+git add backend/init_db.py
+git commit -m "fix: release query session before seeding to prevent db-init self-deadlock on first boot"
+```
+
+---
+
 ## Self-Review Notes
 
 - **Spec coverage:** all 5 spec sections (JWT, secrets, validation, ports, Postgres) map 1:1 to Tasks 1-5; Task 6 covers the spec's "Testing / verification plan" section. The dropped firewall-automation item has no task, matching the spec's explicit "Out of scope." Task 7 was added after Task 6's live run surfaced a pre-existing db-init crash blocking verification — not in the original spec, added as a necessary fix to actually satisfy the spec's "Web, API y BD funcionando" testing goal.
