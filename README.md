@@ -1,68 +1,107 @@
-=========================================================
- ACTUALIZACIÓN DEL BACKEND Y APP MÓVIL - FIREWATCH QRO
-=========================================================
-Qué onda equipo. Ya quedó lista al 100% la base de datos (PostgreSQL)
-y la conexión del Backend (Flask). Ya pueden mandar datos reales
-y se van a guardar directo, con todas las validaciones que pidió el profe.
+# FireWatch QRO 🔥
 
-Si van a levantar todo con `docker compose up -d --build` (en vez de las 3
-terminales de abajo), corran primero, una sola vez, `bash deploy/ssl/gen_cert.sh`
-para generar `deploy/ssl/certs/firewatch.pem` — ese archivo no está en el repo
-(está en .gitignore) y sin él el contenedor de HAProxy no arranca porque
-necesita ese cert para el bind de TLS.
+Sistema de monitoreo y reporte de incendios forestales para el estado de Querétaro. Backend Flask + PostgreSQL, dashboard web en React, app móvil en Expo/React Native, todo orquestado con Docker Compose detrás de un balanceador HAProxy con TLS, monitoreo Prometheus/Grafana, y protección JWT + rate limiting.
 
-También ya dejé creada la carpeta base para la aplicación móvil en Expo.
+**Estado de la rúbrica:** 25/25 checks automatizados en verde. Ver [`docs/PI_REQUIREMENTS_VERIFICATION.md`](docs/PI_REQUIREMENTS_VERIFICATION.md) para evidencia punto por punto (comandos `curl`/SQL/`openssl` copiar-pegar, bugs reales encontrados y corregidos durante la verificación).
 
-Sigan estos pasos EXACTAMENTE como dicen para que les funcione todo en sus computadoras:
+---
 
----------------------------------------------------------
-PASO 1: DESCARGAR LOS CAMBIOS (LO MÁS IMPORTANTE)
----------------------------------------------------------
-Abran su terminal en la carpeta principal del proyecto (firewatch_qro) y ejecuten:
-> git pull
+## Arquitectura
 
-Esto va a descargar los nuevos archivos de las rutas y la nueva carpeta "app_movil".
+```
+                         Internet
+                             │
+                        ┌────▼────┐
+                        │ HAProxy │  :80 → :443 (TLS) · :8080 API · :8404 stats · :8405 Grafana
+                        └────┬────┘
+              ┌──────────────┼──────────────┐
+        ┌─────▼─────┐  ┌─────▼─────┐  ┌─────▼─────┐
+        │ Frontend  │  │ api1/2/3  │  │  Grafana  │
+        │  (React)  │  │  (Flask)  │  │           │
+        └───────────┘  └─────┬─────┘  └─────┬─────┘
+                              │              │
+                  ┌───────────┼──────────────┤
+            ┌─────▼─────┐ ┌───▼───┐    ┌─────▼─────┐
+            │ PostgreSQL│ │ Redis │    │ Prometheus│
+            │           │ │       │    │+ exporters│
+            └───────────┘ └───┬───┘    └───────────┘
+                          ┌────▼────┐
+                          │flask1/2 │  workers: reportes críticos → incendio + alerta
+                          └─────────┘
+```
 
----------------------------------------------------------
-PASO 2: LEVANTAR TODO EL PROYECTO (USEN 3 TERMINALES)
----------------------------------------------------------
-Para trabajar, necesitan 3 terminales abiertas al mismo tiempo en diferentes carpetas:
+Red `public_net` (frontend, grafana, haproxy) separada de `private_net` (db, redis, api, workers, monitoreo) — ningún servicio interno publica puertos al host.
 
-TERMINAL 1 (Para la Base de Datos):
-- Entren a la carpeta del backend: cd backend
-- Activen su entorno virtual (venv)
-- Ejecuten: python run.py
+## Stack
 
-TERMINAL 2 (Para el Dashboard Web):
-- Entren a la carpeta del frontend web: cd frontend
-- Ejecuten: npm run dev
+| Capa | Tecnología |
+|---|---|
+| Backend | Flask 3, SQLAlchemy, Flask-JWT-Extended, Flask-Limiter |
+| Base de datos | PostgreSQL 16 |
+| Cola de trabajo | Redis (reportes críticos → workers) |
+| Frontend web | React + Vite |
+| App móvil | Expo / React Native |
+| Balanceador | HAProxy (TLS termination + round-robin + stats) |
+| Monitoreo | Prometheus + Grafana + node/postgres/redis exporters |
+| Orquestación | Docker Compose |
 
-TERMINAL 3 (Para la App Móvil):
-- Entren a la nueva carpeta que creé: cd app_movil
-- Ejecuten: npx expo start
-(Escaneen el código QR con la app de Expo Go en su celular para verla).
+## Arrancar el proyecto
 
----------------------------------------------------------
-⚠️ LA REGLA DE ORO PARA LA APP MÓVIL (LEER SÍ O SÍ) ⚠️
----------------------------------------------------------
-Para que la app en su celular (Expo Go) se pueda conectar a la base de datos de su computadora, ESTÁ PROHIBIDO USAR "localhost" o "127.0.0.1" en los fetch/axios. Si lo hacen, la app va a tronar.
+```bash
+bash deploy/ssl/gen_cert.sh   # una sola vez: genera el certificado TLS autofirmado
+docker compose up -d --build
+```
 
-Tienen que usar SU PROPIA IP LOCAL:
-1. Abran una terminal y escriban "ipconfig" (Windows) o "ifconfig" (Mac).
-2. Busquen la "Dirección IPv4" (ej. 192.168.1.75).
-3. Asegúrense de que su celular y la compu estén en el MISMO WIFI.
-4. En el código de la app móvil (app_movil), las peticiones deben verse así:
+- Web: `https://localhost` (cert autofirmado, el navegador va a advertir la primera vez — aceptar)
+- API: `http://localhost:8080`
+- HAProxy stats: `http://localhost:8404` (`admin` / `admin123`)
+- Grafana: `http://localhost:8405` (`admin` / `admin123`)
+- Usuario admin de prueba: `admin@firewatchqro.mx` / `admin123`
 
-ejemplos no oficiales las url
+Verificar que todo funciona:
+```bash
+bash scripts/verify_pi_requirements.sh
+```
 
-   Bien: http://192.168.1.75:5000/api/reportes
-   Mal:  http://localhost:5000/api/reportes
+### App móvil
 
----------------------------------------------------------
-RUTAS LISTAS PARA QUE LAS USEN EN EL FRONTEND MÓVIL
----------------------------------------------------------
-El backend ya acepta POST (enviar datos) en las siguientes rutas:
-- POST: /api/reportes (Para los reportes ciudadanos)
-- POST: /api/incendios (Para registrar nuevos incendios)
+```bash
+cd app_movil
+echo "EXPO_PUBLIC_API_URL=http://<TU_IP_LOCAL>:8080" > .env   # ipconfig/ifconfig para tu IP
+npm install
+npx expo start
+```
+Escanear el QR con Expo Go. El teléfono y la compu deben estar en el mismo WiFi.
 
-Ya incluyen manejo de errores. Si mandan un dato mal, el backend les regresará un JSON diciendo exactamente qué falló para que lo puedan mostrar en la pantalla de la app.
+## Estructura
+
+```
+backend/          API Flask (routes, models, auth, validación)
+frontend/         Dashboard web (React)
+app_movil/        App Expo/React Native
+deploy/           HAProxy, SSL, firewall, script de despliegue en la nube
+monitoring/       Prometheus, Grafana, exporters de firewall
+db/               Scripts de inicialización de BD
+docs/             Especificaciones, planes y verificación de rúbrica
+scripts/          Suite de verificación automatizada
+```
+
+## Seguridad implementada
+
+- Passwords hasheados con `scrypt` (Werkzeug), nunca texto plano
+- JWT con roles (`admin`, `proteccion_civil`, `ciudadano`) — endpoints de escritura protegidos, sin escalación de rol posible desde el registro público
+- Rate limiting (5/min login y registro, Redis compartido entre las 3 réplicas de la API — no hay bypass balanceando entre instancias)
+- Validación server-side en todos los formularios que escriben a la BD
+- TLS 1.2+ forzado, HTTP redirige a HTTPS
+- Firewall deny-by-default (`deploy/firewall.sh`) + monitoreo del estado del firewall vía Prometheus
+- Secretos fuera de git (`.env`, llaves SSL)
+
+---
+
+## Créditos
+
+Proyecto construido por **Emiliano Ledesma**.
+
+Un agradecimiento especial a Karen, Diego y Abraham por su invaluable aportación de **absolutamente nada** a este repositorio — su fe inquebrantable en que "alguien más lo iba a hacer" resultó, contra todo pronóstico, en que ese alguien fuera siempre la misma persona. El coeficiente de Bus Factor de este proyecto es 1, y no es casualidad.
+
+Si están leyendo esto en la presentación: de nada. 🔥
