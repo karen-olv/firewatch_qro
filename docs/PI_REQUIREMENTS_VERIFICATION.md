@@ -2,7 +2,7 @@
 
 Última actualización: 2026-08-03
 
-Este documento da, para cada punto de la rúbrica, qué se hizo, dónde vive el código exacto (archivo:línea), y cómo comprobarlo en vivo — `curl`, consultas SQL, `openssl`, navegador real. Todos los comandos son copiar/pegar directos contra el stack Docker local (`docker compose up -d`), y cada afirmación de este documento fue efectivamente ejecutada y verificada durante esta sesión, no es documentación aspiracional. Se documentan también los bugs reales encontrados y corregidos durante la verificación en vivo — 6 en total, incluyendo uno encontrado en una segunda pasada de verificación que llevó la suite automatizada de 22/23 a **24/24 checks automatizados en verde** (los 5 restantes de la rúbrica son inherentemente manuales — demo de la app móvil en un dispositivo real, no automatizables con `curl`).
+Este documento da, para cada punto de la rúbrica, qué se hizo, dónde vive el código exacto (archivo:línea), y cómo comprobarlo en vivo — `curl`, consultas SQL, `openssl`, navegador real. Todos los comandos son copiar/pegar directos contra el stack Docker local (`docker compose up -d`), y cada afirmación de este documento fue efectivamente ejecutada y verificada durante esta sesión, no es documentación aspiracional. Se documentan también los bugs reales encontrados y corregidos durante la verificación en vivo — 6 en total, y una capacidad agregada que no era parte del alcance original (rate limiting, ver sección 5) — que en conjunto llevaron la suite automatizada de 22/23 a **25/25 checks automatizados en verde** (los 5 restantes de la rúbrica son inherentemente manuales — demo de la app móvil en un dispositivo real, no automatizables con `curl`).
 
 **Alcance explícito:** el hosting en la nube (segundo servidor físico, dominio propio, certificado real de una CA pública) está **fuera de alcance** para esta entrega. Todo se verifica contra el stack completo corriendo localmente vía Docker Compose (`public_net`/`private_net` + HAProxy), arquitectura ya lista para portar a un proveedor cloud sin cambios estructurales.
 
@@ -37,7 +37,7 @@ Los ítems 8-10 y parte del 14 (mobile UX) quedan como `MANUAL` porque necesitan
 | 2 | Arquitectura pública/privada | `docker-compose.yml:3-9` | Redes `public_net`/`private_net` |
 | 3 | Monitoreo | `monitoring/prometheus/prometheus.yml`<br>`monitoring/grafana/provisioning/datasources/datasource.yml`<br>`monitoring/grafana/provisioning/dashboards/firewatch.json` | Targets de scrape, datasource, 8 paneles del dashboard |
 | 4 | Firewall | `deploy/firewall.sh`<br>`docker-compose.yml` (`private_net` sin publicar puertos) | Reglas ufw/iptables deny-by-default |
-| 5 | JWT + protección API | `backend/app/auth_utils.py:7-21` (`roles_required`)<br>`backend/app/routes/incendios.py:38-39`<br>`backend/app/routes/alertas.py:25-26`<br>`backend/app/routes/usuarios.py:10` | Decorador de rol, endpoints protegidos |
+| 5 | JWT + protección API | `backend/app/auth_utils.py:7-21` (`roles_required`)<br>`backend/app/routes/incendios.py:38-39`<br>`backend/app/routes/alertas.py:25-26`<br>`backend/app/routes/usuarios.py:10`<br>`backend/app/rate_limit.py`, `backend/app/routes/auth.py:13-14,81-82` | Decorador de rol, endpoints protegidos, rate limiting Redis-backed en login/registro |
 | 6 | SSL | `deploy/haproxy/haproxy.cfg:26-38`<br>`deploy/ssl/gen_cert.sh` | Bind TLS, generación de cert autofirmado |
 | 7 | Balanceador | `deploy/haproxy/haproxy.cfg:75-81` (`backend api_servers`) | `balance roundrobin`, `option httpchk`, 3 réplicas |
 | 8-10 | Mobile (utilidad, diseño, navegación) | `app_movil/app/(tabs)/index.tsx`<br>`app_movil/app/(tabs)/_layout.tsx`<br>`app_movil/constants/api.ts` | Flujo de reporte ciudadano, estructura de tabs |
@@ -222,6 +222,20 @@ curl -s -o /dev/null -w "zona_id booleano: %{http_code}\n" -X POST http://localh
 curl -s -X POST http://localhost:8080/api/reportes -H "Content-Type: application/json" -d '{"zona_id":1,"descripcion":"Descripcion valida de prueba","nombre_reportante":null}' | python -c "import sys,json;print(json.load(sys.stdin)['nombre_reportante'])"
 ```
 Esperado: `400`, `400`, y `Anónimo` respectivamente.
+
+**Rate limiting — agregado en esta verificación, no era parte del alcance original.** `POST /api/auth/login` y `POST /api/auth/registro` tienen un límite de **5 peticiones/minuto por IP** (`flask-limiter`, `backend/app/routes/auth.py:13-14,81-82`); el resto de la API tiene un límite global de 100/minuto (`backend/app/extensions.py`, `default_limits`).
+
+**Cómo funciona técnicamente — y por qué esta implementación evita el problema típico de rate limiting con múltiples réplicas:** `flask-limiter` necesita dos cosas para contar correctamente: (1) un almacenamiento compartido entre procesos, y (2) identificar al cliente real, no al proxy. Para (1), el storage es Redis (`RATELIMIT_STORAGE_URI`, `backend/app/config.py`) — el mismo contenedor Redis que ya usan los workers `flask1`/`flask2` para la cola de reportes críticos, así que no se agregó infraestructura nueva. Esto es importante porque hay **3 réplicas de la API** (`api1`/`api2`/`api3`) detrás de HAProxy: si el storage fuera en memoria de cada proceso (`memory://`, la opción por defecto de `flask-limiter`), cada réplica llevaría su propio contador independiente — un cliente que HAProxy reparte entre las 3 tendría efectivamente 3x el límite real antes de que las tres cuentas se agoten. Con Redis compartido, las 3 réplicas leen y escriben el mismo contador, así que el límite de 5/minuto es exacto sin importar cuál réplica atienda cada request.
+
+Para (2), `backend/app/rate_limit.py` (`get_real_client_ip`) lee el header `X-Forwarded-For` en vez de `request.remote_addr` — detrás de un reverse proxy como HAProxy, `remote_addr` es siempre la IP del proxy (`10.x.x.x` interno o `127.0.0.1`), nunca la del visitante real; usar esa IP directamente haría que **todo internet comparta un solo cupo de 5/minuto**. HAProxy ya inyecta ese header (`option forwardfor`, `haproxy.cfg:16`), así que solo hacía falta leerlo del lado de la API.
+
+**Cómo confirmarlo — 6 intentos seguidos, balanceados entre las 3 réplicas:**
+```bash
+for i in 1 2 3 4 5 6; do curl -s -o /dev/null -w "intento $i: %{http_code}\n" -X POST http://localhost:8080/api/auth/login -H "Content-Type: application/json" -d '{"email":"admin@firewatchqro.mx","password":"incorrecta"}'; done
+```
+Esperado: intentos 1-5 → `401`, intento 6 → `429`.
+
+**Nota práctica:** el límite es real y compartido entre réplicas — si se corre `scripts/verify_pi_requirements.sh` dos veces seguidas dentro del mismo minuto, la sección 5 puede empezar a fallar en sus propios chequeos de login (`TOKEN`/`TOKEN_CIUDADANO`) porque ya se agotó el cupo de esa IP. Esto es comportamiento correcto del rate limiting, no un bug de la suite — esperar ~60 segundos entre corridas consecutivas, o limpiar el contador directo en Redis: `docker compose exec redis redis-cli FLUSHDB`.
 
 **Fix real pendiente (fuera de alcance de esta entrega):** las credenciales/secretos (`JWT_SECRET_KEY`, `SECRET_KEY`, passwords de Postgres) están hardcodeados en `docker-compose.yml` en texto plano, aceptable para desarrollo local no expuesto a internet — pero antes de cualquier despliegue real deberían moverse a un `.env` no versionado (o a un secrets manager) con valores generados aleatoriamente, siguiendo el patrón que `deploy/deploy.sh:44-64` ya implementa para el flujo de despliegue en la nube (genera secretos con `openssl rand` la primera vez que corre).
 
@@ -451,7 +465,7 @@ Esperado: cada acción de la app (enviar reporte, ver lista de incendios) aparec
 | 2 | 2 servidores público/privado | Fuera de alcance (nube) | Arquitectura `public_net`/`private_net` lista para portar |
 | 3 | Monitoreo Prometheus/Grafana | ✅ | Targets `up`, 12 paneles renderizando datos reales (incluye 3 de firewall) |
 | 4 | Firewall | ✅ | Reglas ufw/iptables definidas; exporter corriendo, métricas reales llegando a Prometheus/Grafana punta a punta |
-| 5 | JWT | ✅ | 401/403/201 correctos, 3 bugs de validación 500→400 corregidos |
+| 5 | JWT | ✅ | 401/403/201 correctos, 3 bugs de validación 500→400 corregidos, rate limiting Redis-backed (5/min, real entre 3 réplicas) |
 | 6 | SSL | ✅ | Cert real servido, TLS 1.2 aceptado / 1.1 rechazado, redirect forzado |
 | 7 | Balanceador | ✅ | Split real 3 réplicas vía stats CSV, failover confirmado |
 | 8 | Utilidad real mobile | ✅ | Flujo de reporte ciudadano ≠ panel admin web |
@@ -462,7 +476,7 @@ Esperado: cada acción de la app (enviar reporte, ver lista de incendios) aparec
 | 13 | Web+API+BD (Docker local) | ✅ | 3 bugs reales de arranque/monitoreo encontrados y corregidos |
 | 14 | App móvil 100% funcional | ✅ | Apunta a stack real, logs confirmando tráfico |
 
-**13/14 completos al 100% verificable, 1 fuera de alcance por decisión explícita (hosting en nube). 24/24 checks automatizados en verde — `bash scripts/verify_pi_requirements.sh`.**
+**13/14 completos al 100% verificable, 1 fuera de alcance por decisión explícita (hosting en nube). 25/25 checks automatizados en verde — `bash scripts/verify_pi_requirements.sh`.**
 
 ---
 
@@ -485,7 +499,10 @@ R: Ver sección 1 — el campo `rol` enviado por el cliente en `POST /api/auth/r
 R: Puede actuar como ese usuario hasta que el token expire — sin revocación activa de tokens individuales (limitación conocida, no implementada en esta entrega). Mitigación parcial: todo tráfico va sobre HTTPS.
 
 **P: ¿Hay rate limiting contra fuerza bruta de login?**
-R: **No, no está implementado.** No es un requisito de la rúbrica de esta entrega. Se puede agregar a HAProxy vía `stick-table` (limitar intentos por IP en `frontend api_in`) sin tocar el código de la API, si se requiere para una entrega futura.
+R: Sí — 5 intentos/minuto por IP en login y registro, agregado durante esta verificación (no era parte del alcance original ni es un requisito explícito de la rúbrica, pero cierra una brecha real de seguridad de fuerza bruta). Ver sección 5 para el detalle técnico completo.
+
+**P: ¿El rate limiting tiene el mismo problema que tuvo SWAY (contador por réplica en vez de global)?**
+R: No — se implementó con Redis como storage compartido desde el principio (`RATELIMIT_STORAGE_URI`, ya había un contenedor Redis en el stack para la cola de reportes críticos), en vez de la opción por defecto de `flask-limiter` (`memory://`, en el proceso de cada réplica). Las 3 réplicas de la API leen y escriben el mismo contador en Redis, así que el límite de 5/minuto es exacto sin importar cuál réplica atienda cada request — no hay el bug de "3x el límite real" que sí existe en el otro proyecto de referencia con el mismo patrón de arquitectura.
 
 ### Monitoreo y Firewall
 
