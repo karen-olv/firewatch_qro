@@ -102,6 +102,6 @@ scripts/          Suite de verificación automatizada
 
 Proyecto construido por **Emiliano Ledesma**.
 
-Un agradecimiento especial a Karen, Diego y Abraham por su invaluable aportación de **absolutamente nada** a este repositorio — su fe inquebrantable en que "alguien más lo iba a hacer" resultó, contra todo pronóstico, en que ese alguien fuera siempre la misma persona. El coeficiente de Bus Factor de este proyecto es 1, y no es casualidad.
+Un agradecimiento especial a Karen, Diego y Abraham por su invaluable aportación a este repositorio — su fe inquebrantable en que "alguien más lo iba a hacer" resultó, contra todo pronóstico, en que ese alguien fuera siempre la misma persona.
 
-Si están leyendo esto en la presentación: de nada. 🔥
+Si están leyendo esto en la presentación: de nada.
