@@ -1011,8 +1011,221 @@ No commit for this task — it's verification only, no file changes.
 
 ---
 
+### Task 7: Fix db-init double create_app() crash
+
+**Files:**
+- Modify: `backend/seed.py` (module-level `create_app()` call, `run()` function body)
+- Modify: `backend/init_db.py:52-56` (no signature change needed — `seed_run()` call already sits inside an active `app.app_context()`)
+
+**Interfaces:**
+- Produces: `seed.run()` no longer creates its own Flask app or pushes its own app context — it assumes an app context is already active (matches how `init_db.py` already calls it, inside `with app.app_context():`).
+
+**Background:** Task 6's live verification found that `backend/init_db.py` calls `create_app()` (module-level), and when the DB is empty it imports `backend/seed.py`, which ALSO calls `create_app()` at module level. Both `create_app()` calls run `PrometheusMetrics(app, ...)` (`backend/app/__init__.py:48`), which registers collectors against the process-global `prometheus_client` registry. Registering twice in the same process raises `prometheus_client.registry.DuplicateTimeseries`, crashing `db-init` before it seeds any data — nothing downstream (api1-3, workers, HAProxy) ever starts. This bug is pre-existing (not introduced by Tasks 1-5) but blocks Task 6's verification and the "Web+API+BD funcionando" requirement, so it must be fixed before Task 6 can pass.
+
+- [ ] **Step 1: Read current `backend/seed.py` in full to confirm line numbers before editing**
+
+Run: `cat backend/seed.py` (or read the file) — confirm the module-level `app = create_app()` is on line 15, and `def run():` opens with `with app.app_context():` on the next lines, ending with `db.session.commit()` and two `print(...)` calls, followed by `if __name__ == "__main__": run()`.
+
+- [ ] **Step 2: Rewrite `backend/seed.py` so it doesn't create its own app when imported**
+
+Replace the entire file with:
+
+```python
+"""
+Llena la base de datos con datos de ejemplo
+(municipios, zonas, incendios, reportes y alertas).
+
+Uso standalone:
+    python seed.py
+
+Uso desde otro módulo (p. ej. init_db.py): llamar a run() dentro de un
+app_context ya activo — run() no crea ni empuja su propio Flask app,
+para evitar registrar las métricas de Prometheus dos veces en el mismo
+proceso (ver backend/app/__init__.py -> PrometheusMetrics).
+"""
+from datetime import datetime, timedelta
+import random
+
+from app.extensions import db
+from app.models import Municipio, Zona, Incendio, Reporte, Alerta, Usuario
+
+MUNICIPIOS_ZONAS = {
+    "Jalpan de Serra": [("Sierra Gorda - Núcleo", 21.2167, -99.4833)],
+    "Landa de Matamoros": [("Landa Norte", 21.1667, -99.3333)],
+    "Cadereyta de Montes": [("Cadereyta Centro", 20.6975, -99.8214)],
+    "Pinal de Amoles": [("Pinal Alto", 21.1333, -99.6167)],
+    "San Joaquín": [("San Joaquín Rural", 20.9333, -99.6167)],
+    "Colón": [("Colón Oriente", 20.7867, -100.0611)],
+    "Amealco de Bonfil": [("Amealco Sur", 20.1833, -100.1500)],
+    "Ezequiel Montes": [("Peña de Bernal", 20.7500, -99.9500)],
+    "Querétaro": [("Querétaro Capital", 20.5888, -100.3899)],
+}
+
+
+def run():
+    """Siembra datos de ejemplo. Requiere un app_context ya activo."""
+    db.drop_all()
+    db.create_all()
+
+    # --- municipios y zonas ---
+    zonas_por_nombre = {}
+    for municipio_nombre, zonas in MUNICIPIOS_ZONAS.items():
+        municipio = Municipio(nombre=municipio_nombre)
+        db.session.add(municipio)
+        db.session.flush()  # para obtener el id sin hacer commit todavía
+
+        for zona_nombre, lat, lng in zonas:
+            zona = Zona(nombre=zona_nombre, municipio_id=municipio.id, lat=lat, lng=lng)
+            db.session.add(zona)
+            db.session.flush()
+            zonas_por_nombre[zona_nombre] = zona
+
+    # --- incendios de ejemplo (histórico de los últimos 24 meses) ---
+    niveles = ["bajo", "medio", "alto"]
+    zonas = list(zonas_por_nombre.values())
+    incendios_creados = []
+    for _ in range(60):
+        zona = random.choice(zonas)
+        dias_atras = random.randint(0, 720)
+        incendio = Incendio(
+            zona_id=zona.id,
+            nivel_riesgo=random.choice(niveles),
+            estado=random.choice(["activo", "contenido", "controlado"]),
+            descripcion="Registro generado para pruebas y estadísticas.",
+            fuente=random.choice(["sensor", "ciudadano"]),
+            fecha_deteccion=datetime.utcnow() - timedelta(days=dias_atras),
+        )
+        db.session.add(incendio)
+        db.session.flush()
+        incendios_creados.append(incendio)
+
+    # --- fuerza 3 incendios activos "de hoy" para que el dashboard se vea vivo ---
+    for zona_nombre, nivel in [
+        ("Sierra Gorda - Núcleo", "alto"),
+        ("Peña de Bernal", "medio"),
+        ("Amealco Sur", "bajo"),
+    ]:
+        zona = zonas_por_nombre[zona_nombre]
+        incendio = Incendio(
+            zona_id=zona.id,
+            nivel_riesgo=nivel,
+            estado="activo",
+            descripcion="Incendio activo bajo monitoreo.",
+            fuente="sensor",
+            fecha_deteccion=datetime.utcnow() - timedelta(minutes=random.randint(10, 120)),
+        )
+        db.session.add(incendio)
+        db.session.flush()
+        incendios_creados.append(incendio)
+
+        alerta = Alerta(
+            incendio_id=incendio.id,
+            nivel=nivel,
+            descripcion="Alerta generada automáticamente por el sistema.",
+            enviada_a="Protección Civil Querétaro",
+        )
+        db.session.add(alerta)
+
+    # --- reportes ciudadanos de ejemplo ---
+    nombres = ["María Elena Ruiz", "José Antonio Vega", "Guardia forestal #12", "Sensor térmico Z-06"]
+    for nombre in nombres:
+        zona = random.choice(zonas)
+        reporte = Reporte(
+            nombre_reportante=nombre,
+            zona_id=zona.id,
+            descripcion="Reporte de ejemplo para pruebas del dashboard.",
+            es_critico=random.choice([True, False]),
+            validado=random.choice([True, False]),
+            fecha=datetime.utcnow() - timedelta(hours=random.randint(1, 48)),
+        )
+        db.session.add(reporte)
+
+    # --- usuario admin de ejemplo ---
+    admin = Usuario(nombre="Admin Protección Civil", email="admin@firewatchqro.mx", rol="admin")
+    admin.set_password("admin123")
+    db.session.add(admin)
+
+    db.session.commit()
+    print("Base de datos creada y sembrada con datos de ejemplo ✅")
+    print("Usuario admin de prueba -> email: admin@firewatchqro.mx | password: admin123")
+
+
+if __name__ == "__main__":
+    from app import create_app
+
+    app = create_app()
+    with app.app_context():
+        run()
+```
+
+- [ ] **Step 3: Confirm `backend/init_db.py` needs no change**
+
+Read `backend/init_db.py:45-57` — `init_db()` already does:
+
+```python
+def init_db():
+    with app.app_context():
+        print("[init_db] Creando tablas...")
+        db.create_all()
+
+        if Municipio.query.first() is None:
+            print("[init_db] BD vacía -> sembrando datos de ejemplo (seed)...")
+            from seed import run as seed_run
+
+            seed_run()
+        else:
+            print("[init_db] La BD ya tiene datos, no se vuelve a sembrar.")
+```
+
+`seed_run()` is already called inside `init_db.py`'s own `with app.app_context():` block — no change needed here. The bug was entirely `seed.py` creating a second app; Step 2 removes that.
+
+- [ ] **Step 4: Verify standalone `python seed.py` still works against a real database**
+
+This requires a live database. If Docker Desktop is available, run: `docker compose up -d db` (starts just the Postgres container), wait for it healthy (`docker compose ps db`), then from `backend/`: `DATABASE_URL=postgresql+psycopg2://firewatch_user:firewatch_pass@localhost:5432/firewatch_qro python seed.py` (adjust the port/env-setting syntax for your shell — Git Bash on Windows accepts the `VAR=val command` form). Expected output ends with `Base de datos creada y sembrada con datos de ejemplo ✅`. If a live DB isn't reachable in your environment, skip this step and rely on Step 6's full-stack rebuild instead — note in your report which path you took.
+
+- [ ] **Step 5: Run the backend pytest suite to confirm no regression**
+
+Run (from `backend/`): `python -m pytest tests/ -v`
+Expected: 16/16 passing (this suite doesn't call `seed.py` at all, so it should be unaffected — this step is a regression check on the rest of the app, not a test of the fix itself).
+
+- [ ] **Step 6: Full clean rebuild to confirm the actual bug is fixed**
+
+```bash
+docker compose down -v
+docker compose up -d --build
+```
+
+Wait roughly 30-40 seconds for healthchecks, then:
+
+Run: `docker compose ps`
+Expected: `db` healthy, `db-init` **Exited (0)** (this is the line that was failing before — confirm it now exits clean, not 1), `api1`/`api2`/`api3` show `Up`.
+
+Run: `docker compose logs db-init | tail -20`
+Expected: ends with `[init_db] Inicialización completada ✅`, no `DuplicateTimeseries` traceback.
+
+Run: `curl -s http://localhost:8080/api/health`
+Expected: `{"status":"ok","servicio":"FireWatch QRO API"}`
+
+Run: `curl -s -X POST http://localhost:8080/api/auth/login -H "Content-Type: application/json" -d '{"email":"admin@firewatchqro.mx","password":"admin123"}'`
+Expected: JSON containing `"access_token"` — confirms the seeded admin user actually exists this time (Task 6 found seeding never completed before).
+
+- [ ] **Step 7: Tear down**
+
+```bash
+docker compose down
+```
+
+- [ ] **Step 8: Commit**
+
+```bash
+git add backend/seed.py
+git commit -m "fix: seed.py no longer creates a duplicate Flask app, fixes db-init Prometheus DuplicateTimeseries crash on first boot"
+```
+
+---
+
 ## Self-Review Notes
 
-- **Spec coverage:** all 5 spec sections (JWT, secrets, validation, ports, Postgres) map 1:1 to Tasks 1-5; Task 6 covers the spec's "Testing / verification plan" section. The dropped firewall-automation item has no task, matching the spec's explicit "Out of scope."
+- **Spec coverage:** all 5 spec sections (JWT, secrets, validation, ports, Postgres) map 1:1 to Tasks 1-5; Task 6 covers the spec's "Testing / verification plan" section. The dropped firewall-automation item has no task, matching the spec's explicit "Out of scope." Task 7 was added after Task 6's live run surfaced a pre-existing db-init crash blocking verification — not in the original spec, added as a necessary fix to actually satisfy the spec's "Web, API y BD funcionando" testing goal.
 - **Type/name consistency:** `roles_required` (Task 1) is the only new function signature introduced and reused nowhere else — no drift risk. `conftest.py` fixtures `app`/`client` and helper `make_user`/`login` (Task 1) are consumed as-is by Task 2's tests, same names, same signatures.
 - **No placeholders:** every step has literal code or literal shell commands with expected output, no "add appropriate X" phrasing.
