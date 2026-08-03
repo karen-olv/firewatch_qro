@@ -19,3 +19,9 @@ class Config:
     # Redis: usado por los workers flask1/flask2 para procesar reportes
     # críticos (cola "reportes_criticos") y generar Incendio + Alerta.
     REDIS_URL = os.getenv("REDIS_URL", "redis://localhost:6379/0")
+
+    # Rate limiting (Flask-Limiter) comparte el mismo Redis entre las 3
+    # réplicas de la API -- un cliente balanceado entre api1/api2/api3 ve
+    # un único contador real, no uno por réplica.
+    RATELIMIT_STORAGE_URI = REDIS_URL
+    RATELIMIT_ENABLED = os.getenv("TESTING") != "1"
