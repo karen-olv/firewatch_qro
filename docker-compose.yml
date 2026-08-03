@@ -98,8 +98,6 @@ services:
       - private_net
     expose:
       - "5000"
-    ports:
-      - "8001:5000"
 
   api2:
     build: ./backend
@@ -118,8 +116,6 @@ services:
       - private_net
     expose:
       - "5000"
-    ports:
-      - "8002:5000"
 
   api3:
     build: ./backend
@@ -138,8 +134,6 @@ services:
       - private_net
     expose:
       - "5000"
-    ports:
-      - "8003:5000"
 
   # =============================================================
   #  RED PRIVADA: Workers Flask (consumen cola de Redis)
@@ -164,8 +158,6 @@ services:
       - private_net
     expose:
       - "5001"
-    ports:
-      - "5001:5001"
 
   flask2:
     build: ./backend
@@ -186,8 +178,6 @@ services:
       - private_net
     expose:
       - "5002"
-    ports:
-      - "5002:5002"
 
   # =============================================================
   #  RED PRIVADA: Monitoreo (Prometheus + exporters)
