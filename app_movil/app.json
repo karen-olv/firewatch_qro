@@ -51,7 +51,8 @@
           "photosPermission": "FireWatch QRO necesita acceso a tus fotos para adjuntarlas al reporte.",
           "cameraPermission": "FireWatch QRO necesita tu cámara para tomar una foto del incendio."
         }
-      ]
+      ],
+      "expo-secure-store"
     ],
     "experiments": {
       "typedRoutes": true,

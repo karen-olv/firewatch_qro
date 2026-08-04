@@ -23,17 +23,24 @@ export default function TabLayout() {
         tabBarButton: HapticTab,
       }}>
       <Tabs.Screen
-        name="index"
+        name="inicio"
         options={{
-          title: 'Reportar',
-          tabBarIcon: ({ color }) => <IconSymbol size={26} name="flame.fill" color={color} />,
+          title: 'Inicio',
+          tabBarIcon: ({ color }) => <IconSymbol size={26} name="house.fill" color={color} />,
         }}
       />
       <Tabs.Screen
         name="incendios"
         options={{
-          title: 'Incendios',
+          title: 'Mapa',
           tabBarIcon: ({ color }) => <IconSymbol size={26} name="map.fill" color={color} />,
+        }}
+      />
+      <Tabs.Screen
+        name="index"
+        options={{
+          title: 'Reportar',
+          tabBarIcon: ({ color }) => <IconSymbol size={26} name="flame.fill" color={color} />,
         }}
       />
       <Tabs.Screen
@@ -43,7 +50,13 @@ export default function TabLayout() {
           tabBarIcon: ({ color }) => <IconSymbol size={26} name="bell.fill" color={color} />,
         }}
       />
+      <Tabs.Screen
+        name="perfil"
+        options={{
+          title: 'Perfil',
+          tabBarIcon: ({ color }) => <IconSymbol size={26} name="person.fill" color={color} />,
+        }}
+      />
     </Tabs>
   );
 }
-

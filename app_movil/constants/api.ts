@@ -27,6 +27,12 @@ export const API_URL =
     (process.env as Record<string, string | undefined>).EXPO_PUBLIC_API_URL ||
     DEFAULT_API_URL;
 
+export const AUTH = {
+    login: `${API_URL}/api/auth/login`,
+    registro: `${API_URL}/api/auth/registro`,
+    perfil: `${API_URL}/api/auth/perfil`,
+};
+
 export const ENDPOINTS = {
     reportes: `${API_URL}/api/reportes`,
     incendios: `${API_URL}/api/incendios`,
