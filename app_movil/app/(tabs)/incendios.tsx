@@ -7,8 +7,10 @@ import {
     ActivityIndicator,
     RefreshControl,
     TouchableOpacity,
+    Image,
 } from 'react-native';
 import { ENDPOINTS } from '@/constants/api';
+import { WebView } from 'react-native-webview';
 
 type Incendio = {
     id: number;
@@ -18,6 +20,8 @@ type Incendio = {
     estado: string;
     descripcion: string | null;
     fecha_deteccion: string | null;
+    lat: number | null;
+    lng: number | null;
 };
 
 const nivelColor: Record<string, string> = {
@@ -32,11 +36,36 @@ const estadoTexto: Record<string, string> = {
     controlado: 'Controlado',
 };
 
+function construirHtmlMapa(puntos: Incendio[]) {
+    var datos = puntos.filter(function (p: Incendio) { return p.lat != null && p.lng != null; });
+    var datosJson = JSON.stringify(datos);
+    return (
+        '<!DOCTYPE html><html><head>' +
+        '<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />' +
+        '<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />' +
+        '<style>html,body,#map{height:100%;margin:0;padding:0;}</style>' +
+        '</head><body><div id="map"></div>' +
+        '<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></' + 'script>' +
+        '<script>' +
+        'var puntos = ' + datosJson + ';' +
+        'var mapa = L.map("map").setView([20.59, -100.39], 8);' +
+        'L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png",{attribution:"OpenStreetMap"}).addTo(mapa);' +
+        'var colores = {alto:"#EF4444",medio:"#FBBF24",bajo:"#4ADE80"};' +
+        'puntos.forEach(function(p){' +
+        '  var color = colores[p.nivel_riesgo] || "#888";' +
+        '  var m = L.circleMarker([p.lat, p.lng], {radius:10, fillColor:color, color:"#fff", weight:2, fillOpacity:0.9}).addTo(mapa);' +
+        '  m.bindPopup("<b>" + (p.zona || "Zona") + "</b><br>" + (p.municipio || "") + "<br>Nivel: " + p.nivel_riesgo);' +
+        '});' +
+        '</script></body></html>'
+    );
+}
+
 export default function IncendiosScreen() {
     const [incendios, setIncendios] = useState<Incendio[]>([]);
     const [cargando, setCargando] = useState(true);
     const [refrescando, setRefrescando] = useState(false);
     const [filtro, setFiltro] = useState<'todos' | 'activo'>('activo');
+    const [vista, setVista] = useState<'lista' | 'mapa'>('lista');
 
     const obtenerIncendios = async () => {
         try {
@@ -99,6 +128,32 @@ export default function IncendiosScreen() {
                 </TouchableOpacity>
             </View>
 
+            <View style={styles.filtros}>
+                <TouchableOpacity
+                    style={[styles.filtroBtn, vista === 'lista' && styles.filtroBtnActivo]}
+                    onPress={() => setVista('lista')}
+                >
+                    <Text style={[styles.filtroTexto, vista === 'lista' && styles.filtroTextoActivo]}>
+                        📋 Lista
+                    </Text>
+                </TouchableOpacity>
+                <TouchableOpacity
+                    style={[styles.filtroBtn, vista === 'mapa' && styles.filtroBtnActivo]}
+                    onPress={() => setVista('mapa')}
+                >
+                    <Text style={[styles.filtroTexto, vista === 'mapa' && styles.filtroTextoActivo]}>
+                        🗺️ Mapa
+                    </Text>
+                </TouchableOpacity>
+            </View>
+
+            {vista === 'mapa' ? (
+                <WebView
+                    originWhitelist={['*']}
+                    source={{ html: construirHtmlMapa(incendios) }}
+                    style={{ flex: 1, borderRadius: 12, overflow: 'hidden' }}
+                />
+            ) : (
             <FlatList
                 data={incendios}
                 keyExtractor={(item) => item.id.toString()}
@@ -126,6 +181,13 @@ export default function IncendiosScreen() {
                             </View>
                         </View>
                         <Text style={styles.cardMunicipio}>{item.municipio ?? ''}</Text>
+                        {item.lat != null && item.lng != null && (
+                            <Image
+                                source={{ uri: `https://static-maps.yandex.ru/1.x/?lang=en_US&ll=${item.lng},${item.lat}&z=13&l=map&size=450,180&pt=${item.lng},${item.lat},pm2rdl` }}
+                                style={{ width: '100%', height: 120, borderRadius: 8, marginTop: 8 }}
+                                resizeMode="cover"
+                            />
+                        )}
                         {item.descripcion ? (
                             <Text style={styles.cardTexto}>{item.descripcion}</Text>
                         ) : null}
@@ -142,6 +204,7 @@ export default function IncendiosScreen() {
                     </View>
                 )}
             />
+            )}
         </View>
     );
 }

@@ -38,6 +38,19 @@
             "backgroundColor": "#000000"
           }
         }
+      ],
+      [
+        "expo-location",
+        {
+          "locationAlwaysAndWhenInUsePermission": "FireWatch QRO necesita tu ubicación para geolocalizar el reporte de incendio."
+        }
+      ],
+      [
+        "expo-image-picker",
+        {
+          "photosPermission": "FireWatch QRO necesita acceso a tus fotos para adjuntarlas al reporte.",
+          "cameraPermission": "FireWatch QRO necesita tu cámara para tomar una foto del incendio."
+        }
       ]
     ],
     "experiments": {

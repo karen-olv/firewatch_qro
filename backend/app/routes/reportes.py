@@ -2,6 +2,7 @@ import json
 import os
 from flask import Blueprint, request, jsonify, current_app
 from flask_jwt_extended import jwt_required
+from app.auth_utils import roles_required
 from app.extensions import db
 # <-- Aquí ya importamos Zona para que no marque rojo
 from app.models import Reporte, Zona
@@ -96,6 +97,19 @@ def crear_reporte():
             {"error": "nombre_reportante debe tener al menos 3 caracteres"}
         ), 400
 
+    lat = data.get("lat")
+    lng = data.get("lng")
+    foto = data.get("foto")
+    if foto is not None:
+        if not isinstance(foto, str) or len(foto) > 3_000_000:
+            return jsonify({"error": "foto inválida o demasiado grande (máx ~2MB)"}), 400
+    if lat is not None:
+        if not isinstance(lat, (int, float)) or not (-90 <= lat <= 90):
+            return jsonify({"error": "lat inválida (debe estar entre -90 y 90)"}), 400
+    if lng is not None:
+        if not isinstance(lng, (int, float)) or not (-180 <= lng <= 180):
+            return jsonify({"error": "lng inválida (debe estar entre -180 y 180)"}), 400
+
     # 3. Validar que la zona_id realmente exista en tu BD
     zona_existe = Zona.query.get(zona_id)
     if not zona_existe:
@@ -110,7 +124,10 @@ def crear_reporte():
         descripcion=data.get("descripcion"),
         es_critico=data.get("es_critico", False),
         validado=False,
-        fecha=datetime.utcnow()
+        fecha=datetime.utcnow(),
+        lat=lat,
+        lng=lng,
+        foto=foto,
     )
 
     db.session.add(reporte)
@@ -142,7 +159,7 @@ def crear_reporte():
 
 
 @bp.patch("/<int:reporte_id>/validar")
-@jwt_required()
+@roles_required("admin", "proteccion_civil")
 def validar_reporte(reporte_id):
     """
     Marcar un reporte como validado (Protección Civil).

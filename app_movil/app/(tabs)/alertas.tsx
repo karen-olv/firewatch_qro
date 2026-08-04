@@ -6,6 +6,7 @@ import {
     FlatList,
     ActivityIndicator,
     RefreshControl,
+    Image,
 } from 'react-native';
 import { ENDPOINTS } from '@/constants/api';
 
@@ -17,6 +18,8 @@ type Alerta = {
     descripcion: string | null;
     enviada_a: string | null;
     fecha: string | null;
+    lat: number | null;
+    lng: number | null;
 };
 
 const nivelColor: Record<string, string> = {
@@ -97,6 +100,13 @@ export default function AlertasScreen() {
                         {item.descripcion ? (
                             <Text style={styles.cardTexto}>{item.descripcion}</Text>
                         ) : null}
+                        {item.lat != null && item.lng != null && (
+                            <Image
+                                source={{ uri: `https://static-maps.yandex.ru/1.x/?lang=en_US&ll=${item.lng},${item.lat}&z=13&l=map&size=450,180&pt=${item.lng},${item.lat},pm2rdl` }}
+                                style={{ width: '100%', height: 120, borderRadius: 8, marginTop: 8, marginBottom: 6 }}
+                                resizeMode="cover"
+                            />
+                        )}
                         <Text style={styles.cardInfo}>
                             Enviada a: {item.enviada_a ?? 'Autoridades'}
                         </Text>
