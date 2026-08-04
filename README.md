@@ -97,11 +97,3 @@ scripts/          Suite de verificación automatizada
 - Secretos fuera de git (`.env`, llaves SSL)
 
 ---
-
-## Créditos
-
-Proyecto construido por **Emiliano Ledesma**.
-
-Un agradecimiento especial a Karen, Diego y Abraham por su invaluable aportación a este repositorio — su fe inquebrantable en que "alguien más lo iba a hacer" resultó, contra todo pronóstico, en que ese alguien fuera siempre la misma persona.
-
-Si están leyendo esto en la presentación: de nada.
