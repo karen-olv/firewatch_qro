@@ -95,6 +95,8 @@ export default function App() {
 
   const esVisible = (key) => active === "dashboard" || active === key;
 
+  const [fotoAmpliada, setFotoAmpliada] = useState(null);
+
   const [filtroReportes, setFiltroReportes] = useState("todos");
   const reportesFiltrados = reportes.filter((r) => {
     if (filtroReportes === "validados") return r.validado;
@@ -486,7 +488,7 @@ export default function App() {
                           src={`data:image/jpeg;base64,${r.foto}`}
                           alt="Foto del reporte"
                           style={{ width: 40, height: 40, borderRadius: 6, objectFit: "cover", cursor: "pointer", border: "1px solid var(--line)" }}
-                          onClick={() => window.open(`data:image/jpeg;base64,${r.foto}`, "_blank")}
+                          onClick={() => setFotoAmpliada(r.foto)}
                         />
                       ) : (
                         <span style={{ color: "var(--muted)", fontSize: 11 }}>—</span>
@@ -581,6 +583,23 @@ export default function App() {
           </div>
         </div>
       </main>
+
+      {fotoAmpliada && (
+        <div
+          onClick={() => setFotoAmpliada(null)}
+          style={{
+            position: "fixed", inset: 0, background: "rgba(0,0,0,0.85)",
+            display: "flex", alignItems: "center", justifyContent: "center",
+            zIndex: 9999, cursor: "zoom-out", padding: 20,
+          }}
+        >
+          <img
+            src={`data:image/jpeg;base64,${fotoAmpliada}`}
+            alt="Foto del reporte ampliada"
+            style={{ maxWidth: "90%", maxHeight: "90%", borderRadius: 10, boxShadow: "0 0 40px rgba(0,0,0,0.6)" }}
+          />
+        </div>
+      )}
     </div>
   );
 }
