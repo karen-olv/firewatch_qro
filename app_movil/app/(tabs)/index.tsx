@@ -13,8 +13,11 @@ import {
   Platform,
   ScrollView,
   Switch,
+  Image,
 } from 'react-native';
 import { ENDPOINTS } from '@/constants/api';
+import * as Location from 'expo-location';
+import * as ImagePicker from 'expo-image-picker';
 
 type Zona = {
   id: number;
@@ -46,6 +49,70 @@ export default function ReportarScreen() {
   const [enviando, setEnviando] = useState(false);
   const [errores, setErrores] = useState<{ zona?: string; descripcion?: string; nombre?: string }>({});
 
+  // Ubicación GPS
+  const [lat, setLat] = useState<number | null>(null);
+  const [lng, setLng] = useState<number | null>(null);
+  const [ubicacionCargando, setUbicacionCargando] = useState(true);
+  const [ubicacionError, setUbicacionError] = useState<string | null>(null);
+  const [fotoBase64, setFotoBase64] = useState<string | null>(null);
+  const [fotoUri, setFotoUri] = useState<string | null>(null);
+
+  const obtenerUbicacion = async () => {
+    setUbicacionCargando(true);
+    setUbicacionError(null);
+    try {
+      const { status } = await Location.requestForegroundPermissionsAsync();
+      if (status !== 'granted') {
+        setUbicacionError('Permiso de ubicación denegado');
+        return;
+      }
+      const posicion = await Location.getCurrentPositionAsync({});
+      setLat(posicion.coords.latitude);
+      setLng(posicion.coords.longitude);
+    } catch (error) {
+      console.error('Error al obtener ubicación:', error);
+      setUbicacionError('No se pudo obtener la ubicación');
+    } finally {
+      setUbicacionCargando(false);
+    }
+  };
+
+  const tomarFoto = () => {
+    Alert.alert('Agregar foto', 'Elige una opción', [
+      {
+        text: 'Tomar foto',
+        onPress: async () => {
+          const permiso = await ImagePicker.requestCameraPermissionsAsync();
+          if (!permiso.granted) {
+            Alert.alert('Permiso denegado', 'No se puede acceder a la cámara.');
+            return;
+          }
+          const resultado = await ImagePicker.launchCameraAsync({ quality: 0.4, base64: true });
+          if (!resultado.canceled && resultado.assets[0]) {
+            setFotoUri(resultado.assets[0].uri);
+            setFotoBase64(resultado.assets[0].base64 ?? null);
+          }
+        },
+      },
+      {
+        text: 'Elegir de galería',
+        onPress: async () => {
+          const permiso = await ImagePicker.requestMediaLibraryPermissionsAsync();
+          if (!permiso.granted) {
+            Alert.alert('Permiso denegado', 'No se puede acceder a la galería.');
+            return;
+          }
+          const resultado = await ImagePicker.launchImageLibraryAsync({ quality: 0.4, base64: true });
+          if (!resultado.canceled && resultado.assets[0]) {
+            setFotoUri(resultado.assets[0].uri);
+            setFotoBase64(resultado.assets[0].base64 ?? null);
+          }
+        },
+      },
+      { text: 'Cancelar', style: 'cancel' },
+    ]);
+  };
+
   const obtenerDatos = async () => {
     try {
       const [zonasRes, reportesRes] = await Promise.all([
@@ -70,6 +137,7 @@ export default function ReportarScreen() {
 
   useEffect(() => {
     obtenerDatos();
+    obtenerUbicacion();
   }, []);
 
   const alRefrescar = () => {
@@ -111,6 +179,9 @@ export default function ReportarScreen() {
           zona_id: Number(zonaId),
           descripcion: descripcion.trim(),
           es_critico: esCritico,
+          lat,
+          lng,
+          foto: fotoBase64,
         }),
       });
       const data = await response.json();
@@ -208,6 +279,43 @@ export default function ReportarScreen() {
               })}
             </View>
             {errores.zona && <Text style={styles.textoError}>{errores.zona}</Text>}
+
+            <Text style={styles.label}>Ubicación GPS</Text>
+            {ubicacionCargando ? (
+              <View style={{ flexDirection: 'row', alignItems: 'center' }}>
+                <ActivityIndicator size="small" color="#FF6A3D" />
+                <Text style={[styles.vacio, { marginLeft: 8 }]}>Obteniendo ubicación...</Text>
+              </View>
+            ) : ubicacionError ? (
+              <TouchableOpacity onPress={obtenerUbicacion}>
+                <Text style={styles.textoError}>{ubicacionError} · toca para reintentar</Text>
+              </TouchableOpacity>
+            ) : (
+              <Text style={styles.vacio}>
+                📍 {lat?.toFixed(4)}, {lng?.toFixed(4)}
+              </Text>
+            )}
+
+            {lat !== null && lng !== null && (
+              <Image
+                source={{ uri: `https://static-maps.yandex.ru/1.x/?lang=en_US&ll=${lng},${lat}&z=14&l=map&size=450,250&pt=${lng},${lat},pm2rdm` }}
+                style={{ width: '100%', height: 180, borderRadius: 8, marginTop: 8 }}
+                resizeMode="cover"
+              />
+            )}
+
+            <Text style={styles.label}>Foto (opcional)</Text>
+            <TouchableOpacity onPress={tomarFoto} style={styles.zonaChip}>
+              <Text style={styles.zonaChipTexto}>
+                {fotoUri ? '📷 Cambiar foto' : '📷 Agregar foto'}
+              </Text>
+            </TouchableOpacity>
+            {fotoUri && (
+              <Image
+                source={{ uri: fotoUri }}
+                style={{ width: 100, height: 100, borderRadius: 8, marginTop: 8 }}
+              />
+            )}
 
             <Text style={styles.label}>Describe lo que viste *</Text>
             <TextInput

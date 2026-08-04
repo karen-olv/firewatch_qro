@@ -1,12 +1,12 @@
 from flask import Blueprint, jsonify
-from flask_jwt_extended import jwt_required
+from app.auth_utils import roles_required
 from app.models import Usuario
 
 bp = Blueprint("usuarios", __name__, url_prefix="/api/usuarios")
 
 
 @bp.get("")
-@jwt_required()
+@roles_required("admin")
 def listar_usuarios():
     """
     Listar todos los usuarios registrados.

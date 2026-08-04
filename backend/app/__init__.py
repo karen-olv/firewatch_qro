@@ -14,6 +14,7 @@ from app.routes import (
     estadisticas,
     auth,
     usuarios,
+    zonas,
 )
 
 
@@ -62,6 +63,7 @@ def create_app():
     app.register_blueprint(estadisticas.bp)
     app.register_blueprint(auth.bp)
     app.register_blueprint(usuarios.bp)
+    app.register_blueprint(zonas.bp)
 
     # ---------------------------------------------------------------
     # Swagger UI en /docs (especificación OpenAPI en /apispec.json)

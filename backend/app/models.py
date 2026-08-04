@@ -78,6 +78,8 @@ class Reporte(db.Model):
     es_critico = db.Column(db.Boolean, default=False)
     validado = db.Column(db.Boolean, default=False)
     fecha = db.Column(db.DateTime, default=datetime.utcnow)
+    lat = db.Column(db.Float, nullable=True)
+    lng = db.Column(db.Float, nullable=True)
     foto = db.Column(db.Text, nullable=True)  # imagen en base64, enviada desde la app movil
 
     zona = db.relationship("Zona")
@@ -89,10 +91,12 @@ class Reporte(db.Model):
             "municipio": self.zona.municipio.nombre if self.zona and self.zona.municipio else None,
             "zona": self.zona.nombre if self.zona else None,
             "descripcion": self.descripcion,
+            "lat": self.lat,
+            "lng": self.lng,
+            "foto": self.foto,
             "es_critico": self.es_critico,
             "validado": self.validado,
             "fecha": self.fecha.isoformat() if self.fecha else None,
-            "foto": self.foto,
         }
 
 
@@ -116,6 +120,8 @@ class Alerta(db.Model):
             "nivel": self.nivel,
             "descripcion": self.descripcion,
             "enviada_a": self.enviada_a,
+            "lat": self.incendio.zona.lat if self.incendio and self.incendio.zona else None,
+            "lng": self.incendio.zona.lng if self.incendio and self.incendio.zona else None,
             "fecha": self.fecha.isoformat() if self.fecha else None,
         }
 
