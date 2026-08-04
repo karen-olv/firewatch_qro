@@ -33,5 +33,7 @@ export const api = {
   reportes: () => request("/api/reportes"),
   validarReporte: (id) => request(`/api/reportes/${id}/validar`, { method: "PATCH" }),
   registrarUsuario: (data) => request("/api/auth/registro", { method: "POST", body: JSON.stringify(data) }),
+  crearAlerta: (data) => request("/api/alertas", { method: "POST", body: JSON.stringify(data) }),
+  crearAlerta: (data) => request("/api/alertas", { method: "POST", body: JSON.stringify(data) }),
   registrarUsuario: (data) => request("/api/auth/registro", { method: "POST", body: JSON.stringify(data) }),
 };

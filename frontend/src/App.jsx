@@ -95,6 +95,33 @@ export default function App() {
 
   const esVisible = (key) => active === "dashboard" || active === key;
 
+  const [filtroReportes, setFiltroReportes] = useState("todos");
+  const reportesFiltrados = reportes.filter((r) => {
+    if (filtroReportes === "validados") return r.validado;
+    if (filtroReportes === "historico") return !r.validado;
+    return true;
+  });
+
+  const [nuevaAlerta, setNuevaAlerta] = useState({ incendio_id: "", nivel: "medio", descripcion: "" });
+  const [creandoAlerta, setCreandoAlerta] = useState(false);
+  const [mensajeAlerta, setMensajeAlerta] = useState(null);
+
+  const crearAlerta = async (e) => {
+    e.preventDefault();
+    setCreandoAlerta(true);
+    setMensajeAlerta(null);
+    try {
+      await api.crearAlerta({ ...nuevaAlerta, incendio_id: parseInt(nuevaAlerta.incendio_id, 10) });
+      setMensajeAlerta({ tipo: "ok", texto: "Alerta enviada correctamente." });
+      setNuevaAlerta({ incendio_id: "", nivel: "medio", descripcion: "" });
+      cargarTodo();
+    } catch (err) {
+      setMensajeAlerta({ tipo: "error", texto: err.message || "No se pudo enviar la alerta." });
+    } finally {
+      setCreandoAlerta(false);
+    }
+  };
+
   const cargarTodo = useCallback(async () => {
     try {
       setError(null);
@@ -362,6 +389,41 @@ export default function App() {
                 </div>
               ))}
             </div>
+
+            <form onSubmit={crearAlerta} style={{ marginTop: 14, paddingTop: 14, borderTop: "1px solid var(--line)", display: "flex", flexWrap: "wrap", gap: 8, alignItems: "flex-end" }}>
+              <div style={{ flex: "1 1 160px" }}>
+                <label style={{ fontSize: 11, color: "var(--muted)" }}>Incendio</label>
+                <select required value={nuevaAlerta.incendio_id} onChange={(e) => setNuevaAlerta({ ...nuevaAlerta, incendio_id: e.target.value })}
+                  style={{ width: "100%", padding: "7px 8px", borderRadius: 6, border: "1px solid var(--line)", background: "var(--panel-alt)", color: "var(--text)", fontSize: 12 }}>
+                  <option value="">Selecciona…</option>
+                  {incendios.map((inc) => (
+                    <option key={inc.id} value={inc.id}>{inc.zona} — {inc.municipio}</option>
+                  ))}
+                </select>
+              </div>
+              <div style={{ flex: "1 1 120px" }}>
+                <label style={{ fontSize: 11, color: "var(--muted)" }}>Nivel</label>
+                <select value={nuevaAlerta.nivel} onChange={(e) => setNuevaAlerta({ ...nuevaAlerta, nivel: e.target.value })}
+                  style={{ width: "100%", padding: "7px 8px", borderRadius: 6, border: "1px solid var(--line)", background: "var(--panel-alt)", color: "var(--text)", fontSize: 12 }}>
+                  <option value="bajo">Bajo</option>
+                  <option value="medio">Medio</option>
+                  <option value="alto">Alto</option>
+                </select>
+              </div>
+              <div style={{ flex: "2 1 220px" }}>
+                <label style={{ fontSize: 11, color: "var(--muted)" }}>Descripción</label>
+                <input required value={nuevaAlerta.descripcion} onChange={(e) => setNuevaAlerta({ ...nuevaAlerta, descripcion: e.target.value })}
+                  style={{ width: "100%", padding: "7px 8px", borderRadius: 6, border: "1px solid var(--line)", background: "var(--panel-alt)", color: "var(--text)", fontSize: 12 }} />
+              </div>
+              <button type="submit" disabled={creandoAlerta} className="fw-admin-btn" style={{ height: 34 }}>
+                {creandoAlerta ? "Enviando..." : "Mandar alerta"}
+              </button>
+              {mensajeAlerta && (
+                <div style={{ width: "100%", fontSize: 12, color: mensajeAlerta.tipo === "ok" ? "var(--green)" : "var(--red)" }}>
+                  {mensajeAlerta.texto}
+                </div>
+              )}
+            </form>
           </div>
         </div>
 
@@ -405,13 +467,18 @@ export default function App() {
           <div className="fw-card" id="card-reportes" style={{ display: esVisible("reportes") ? undefined : "none" }}>
             <div className="fw-card-head">
               <div className="fw-card-title"><ClipboardList size={16} /> Reportes recientes</div>
+              <div className="fw-range-toggle">
+                <div className={`fw-range-btn ${filtroReportes === "todos" ? "active" : ""}`} onClick={() => setFiltroReportes("todos")}>Todos</div>
+                <div className={`fw-range-btn ${filtroReportes === "validados" ? "active" : ""}`} onClick={() => setFiltroReportes("validados")}>Validados</div>
+                <div className={`fw-range-btn ${filtroReportes === "historico" ? "active" : ""}`} onClick={() => setFiltroReportes("historico")}>Histórico</div>
+              </div>
             </div>
             <table className="fw-table">
               <thead>
                 <tr><th>Foto</th><th>Reportante</th><th>Municipio</th><th>Hora</th><th>Crítico</th><th>Validado</th></tr>
               </thead>
               <tbody>
-                {reportes.map((r) => (
+                {reportesFiltrados.map((r) => (
                   <tr key={r.id}>
                     <td>
                       {r.foto ? (
