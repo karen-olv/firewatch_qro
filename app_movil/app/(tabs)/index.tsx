@@ -18,6 +18,8 @@ import {
 import { ENDPOINTS } from '@/constants/api';
 import * as Location from 'expo-location';
 import * as ImagePicker from 'expo-image-picker';
+import { router } from 'expo-router';
+import { useAuth } from '@/context/AuthContext';
 
 type Zona = {
   id: number;
@@ -35,14 +37,15 @@ type Reporte = {
   zona: string | null;
 };
 
-export default function ReportarScreen() {
+function ReportarForm() {
+  const { usuario } = useAuth();
   const [zonas, setZonas] = useState<Zona[]>([]);
   const [reportes, setReportes] = useState<Reporte[]>([]);
   const [cargando, setCargando] = useState(true);
   const [refrescando, setRefrescando] = useState(false);
 
   // Formulario
-  const [nombre, setNombre] = useState('');
+  const [nombre, setNombre] = useState(usuario?.nombre ?? '');
   const [zonaId, setZonaId] = useState('');
   const [descripcion, setDescripcion] = useState('');
   const [esCritico, setEsCritico] = useState(false);
@@ -531,4 +534,52 @@ const styles = StyleSheet.create({
   pendiente: { color: '#FBBF24', marginTop: 6, fontWeight: 'bold', fontSize: 12 },
   vacio: { color: '#9DB1C7', textAlign: 'center', marginVertical: 15 },
 });
+
+// Candado: solo usuarios con sesión iniciada pueden ver/usar el formulario de reporte.
+function ReportarScreen() {
+  const { usuario, cargando } = useAuth();
+
+  if (cargando) {
+    return (
+      <View style={lockStyles.container}>
+        <ActivityIndicator color="#FF6A3D" size="large" />
+      </View>
+    );
+  }
+
+  if (!usuario) {
+    return (
+      <View style={lockStyles.container}>
+        <Text style={lockStyles.icono}>🔒</Text>
+        <Text style={lockStyles.titulo}>Inicia sesión para reportar</Text>
+        <Text style={lockStyles.texto}>
+          Necesitas una cuenta para enviar reportes de incendios. Puedes seguir viendo el mapa y
+          las alertas sin iniciar sesión.
+        </Text>
+        <TouchableOpacity style={lockStyles.boton} onPress={() => router.push('/login')}>
+          <Text style={lockStyles.botonTexto}>Iniciar sesión</Text>
+        </TouchableOpacity>
+      </View>
+    );
+  }
+
+  return <ReportarForm />;
+}
+
+const lockStyles = StyleSheet.create({
+  container: {
+    flex: 1,
+    backgroundColor: '#0B1D33',
+    justifyContent: 'center',
+    alignItems: 'center',
+    padding: 24,
+  },
+  icono: { fontSize: 48, marginBottom: 12 },
+  titulo: { color: '#fff', fontSize: 20, fontWeight: 'bold', marginBottom: 8, textAlign: 'center' },
+  texto: { color: '#9DB1C7', textAlign: 'center', marginBottom: 24, lineHeight: 20 },
+  boton: { backgroundColor: '#FF6A3D', borderRadius: 12, paddingVertical: 14, paddingHorizontal: 32 },
+  botonTexto: { color: '#fff', fontWeight: 'bold', fontSize: 16 },
+});
+
+export default ReportarScreen;
 
