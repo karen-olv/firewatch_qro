@@ -248,6 +248,8 @@ services:
   firewall-exporter:
     build: ./monitoring/firewall
     container_name: firewatch_firewall_exporter
+    cap_add:
+      - NET_ADMIN
     restart: always
     network_mode: host
     environment:
