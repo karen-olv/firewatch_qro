@@ -358,17 +358,17 @@ export default function App() {
               <tbody>
                 {reportes.map((r) => (
                   <tr key={r.id}>
-                    <td>{r.nombre_reportante}</td>
-                    <td style={{ color: "var(--muted)" }}>{r.municipio}</td>
-                    <td className="fw-mono" style={{ color: "var(--muted)" }}>
+                    <td data-label="Reportante">{r.nombre_reportante}</td>
+                    <td data-label="Municipio" style={{ color: "var(--muted)" }}>{r.municipio}</td>
+                    <td data-label="Hora" className="fw-mono" style={{ color: "var(--muted)" }}>
                       {new Date(r.fecha).toLocaleTimeString("es-MX", { hour: "2-digit", minute: "2-digit" })}
                     </td>
-                    <td>
+                    <td data-label="Crítico">
                       <span className="fw-badge" style={{ background: r.es_critico ? "var(--red)" : "var(--panel-alt)", color: r.es_critico ? "#14160F" : "var(--muted)", border: r.es_critico ? "none" : "1px solid var(--line)" }}>
                         {r.es_critico ? "Sí" : "No"}
                       </span>
                     </td>
-                    <td>
+                    <td data-label="Validado">
                       {r.validado ? (
                         <span className="fw-badge" style={{ background: "var(--green)", color: "#14160F" }}>Validado</span>
                       ) : (

@@ -1,2 +1,9 @@
 * { margin: 0; padding: 0; }
-body { min-height: 100vh; }
+html,
+body,
+#root {
+	min-height: 100%;
+	width: 100%;
+}
+
+body { min-height: 100vh; background: #12160F; }

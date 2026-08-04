@@ -89,15 +89,22 @@ def tendencia_incendios():
     meses = int(request.args.get("meses", 12))
     desde = datetime.utcnow() - timedelta(days=meses * 30)
 
+    dialecto = db.engine.dialect.name
+    if dialecto == "sqlite":
+      periodo = func.strftime("%Y-%m", Incendio.fecha_deteccion)
+    elif dialecto == "postgresql":
+      periodo = func.to_char(Incendio.fecha_deteccion, "YYYY-MM")
+    else:
+      periodo = func.date_format(Incendio.fecha_deteccion, "%Y-%m")
+
     resultados = (
         db.session.query(
-            func.date_format(Incendio.fecha_deteccion,
-                             "%Y-%m").label("periodo"),
+        periodo.label("periodo"),
             func.count(Incendio.id).label("incendios"),
         )
         .filter(Incendio.fecha_deteccion >= desde)
-        .group_by("periodo")
-        .order_by("periodo")
+      .group_by(periodo)
+      .order_by(periodo)
         .all()
     )
     return jsonify([{"periodo": r[0], "incendios": r[1]} for r in resultados])

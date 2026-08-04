@@ -6,9 +6,11 @@
 # Corre en network_mode: host para poder leer /proc/net/* y
 # ejecutar iptables/ufw contra el namespace de red del host.
 # ============================================================
-FROM python:3.11-alpine
+FROM python:3.11-slim
 
-RUN apk add --no-cache iptables iproute2
+RUN apt-get update \
+	&& apt-get install -y --no-install-recommends iptables iproute2 \
+	&& rm -rf /var/lib/apt/lists/*
 
 WORKDIR /opt/firewatch
 COPY firewall_metrics.py .
