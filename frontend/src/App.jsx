@@ -10,6 +10,8 @@ import {
 } from "lucide-react";
 import { api } from "./api";
 import "./App.css";
+import { MapContainer, TileLayer, CircleMarker, Popup, useMap } from "react-leaflet";
+import "leaflet/dist/leaflet.css";
 
 const NAV = [
   { key: "dashboard", label: "Panel general", icon: Flame },
@@ -301,23 +303,41 @@ export default function App() {
               <div className="fw-card-title"><MapPinned size={16} /> Mapa en vivo — incendios activos</div>
               <div className="fw-mono fw-live-tag"><Radio size={12} /> actualiza cada 30s</div>
             </div>
-            <div className="fw-map">
-              {incendios.map((inc) => {
-                if (inc.lat == null || inc.lng == null) return null;
-                const { x, y } = proyectar(inc.lat, inc.lng);
-                return (
-                  <React.Fragment key={inc.id}>
-                    <div className="fw-map-zone" style={{ left: `${x}%`, top: `${y}%`, background: levelColor[inc.nivel_riesgo], color: levelColor[inc.nivel_riesgo] }}>
-                      <CircleDot size={13} color="#14160F" />
-                    </div>
-                    <div className="fw-map-label" style={{ left: `${x + 2}%`, top: `${y - 4}%` }}>{inc.zona}</div>
-                  </React.Fragment>
-                );
-              })}
-              <div className="fw-map-footer">
-                <span>Querétaro, México</span>
-                <span>{incendios.length} incendios activos en el mapa</span>
-              </div>
+            <div className="fw-map fw-map-real">
+              <MapContainer
+                center={[20.75, -99.9]}
+                zoom={8}
+                scrollWheelZoom={true}
+                style={{ height: "100%", width: "100%", borderRadius: "10px" }}
+              >
+                <TileLayer
+                  attribution='&copy; OpenStreetMap contributors'
+                  url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
+                />
+                {incendios.map((inc) => {
+                  if (inc.lat == null || inc.lng == null) return null;
+                  return (
+                    <CircleMarker
+                      key={inc.id}
+                      center={[inc.lat, inc.lng]}
+                      radius={12}
+                      pathOptions={{
+                        color: levelColor[inc.nivel_riesgo],
+                        fillColor: levelColor[inc.nivel_riesgo],
+                        fillOpacity: 0.85,
+                        weight: 2,
+                      }}
+                    >
+                      <Popup>
+                        <b>{inc.zona}</b><br />
+                        Municipio: {inc.municipio}<br />
+                        Nivel de riesgo: {inc.nivel_riesgo}<br />
+                        Coordenadas: {inc.lat.toFixed(4)}, {inc.lng.toFixed(4)}
+                      </Popup>
+                    </CircleMarker>
+                  );
+                })}
+              </MapContainer>
             </div>
           </div>
 
