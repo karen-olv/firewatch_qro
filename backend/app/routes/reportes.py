@@ -110,7 +110,8 @@ def crear_reporte():
         descripcion=data.get("descripcion"),
         es_critico=data.get("es_critico", False),
         validado=False,
-        fecha=datetime.utcnow()
+        fecha=datetime.utcnow(),
+        foto=data.get("foto"),
     )
 
     db.session.add(reporte)

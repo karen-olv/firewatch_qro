@@ -408,11 +408,23 @@ export default function App() {
             </div>
             <table className="fw-table">
               <thead>
-                <tr><th>Reportante</th><th>Municipio</th><th>Hora</th><th>Crítico</th><th>Validado</th></tr>
+                <tr><th>Foto</th><th>Reportante</th><th>Municipio</th><th>Hora</th><th>Crítico</th><th>Validado</th></tr>
               </thead>
               <tbody>
                 {reportes.map((r) => (
                   <tr key={r.id}>
+                    <td>
+                      {r.foto ? (
+                        <img
+                          src={`data:image/jpeg;base64,${r.foto}`}
+                          alt="Foto del reporte"
+                          style={{ width: 40, height: 40, borderRadius: 6, objectFit: "cover", cursor: "pointer", border: "1px solid var(--line)" }}
+                          onClick={() => window.open(`data:image/jpeg;base64,${r.foto}`, "_blank")}
+                        />
+                      ) : (
+                        <span style={{ color: "var(--muted)", fontSize: 11 }}>—</span>
+                      )}
+                    </td>
                     <td>{r.nombre_reportante}</td>
                     <td style={{ color: "var(--muted)" }}>{r.municipio}</td>
                     <td className="fw-mono" style={{ color: "var(--muted)" }}>

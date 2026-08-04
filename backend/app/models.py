@@ -78,6 +78,7 @@ class Reporte(db.Model):
     es_critico = db.Column(db.Boolean, default=False)
     validado = db.Column(db.Boolean, default=False)
     fecha = db.Column(db.DateTime, default=datetime.utcnow)
+    foto = db.Column(db.Text, nullable=True)  # imagen en base64, enviada desde la app movil
 
     zona = db.relationship("Zona")
 
@@ -91,6 +92,7 @@ class Reporte(db.Model):
             "es_critico": self.es_critico,
             "validado": self.validado,
             "fecha": self.fecha.isoformat() if self.fecha else None,
+            "foto": self.foto,
         }
 
 
