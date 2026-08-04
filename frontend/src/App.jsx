@@ -96,6 +96,7 @@ export default function App() {
   const esVisible = (key) => active === "dashboard" || active === key;
 
   const [fotoAmpliada, setFotoAmpliada] = useState(null);
+  const [municipioSeleccionado, setMunicipioSeleccionado] = useState("");
 
   const [filtroReportes, setFiltroReportes] = useState("todos");
   const reportesFiltrados = reportes.filter((r) => {
@@ -455,8 +456,29 @@ export default function App() {
                 <Area type="monotone" dataKey="incendios" stroke="#FF6A3D" fill="url(#fwArea)" strokeWidth={2} />
               </AreaChart>
             </ResponsiveContainer>
+            <div style={{ display: "flex", alignItems: "center", gap: 10, marginTop: 10, marginBottom: 4 }}>
+              <select
+                value={municipioSeleccionado}
+                onChange={(e) => setMunicipioSeleccionado(e.target.value)}
+                style={{ padding: "6px 8px", borderRadius: 6, border: "1px solid var(--line)", background: "var(--panel-alt)", color: "var(--text)", fontSize: 12 }}
+              >
+                <option value="">Todos los municipios</option>
+                {topMunicipios.map((m) => (
+                  <option key={m.municipio} value={m.municipio}>{m.municipio}</option>
+                ))}
+              </select>
+              {municipioSeleccionado && (
+                <span className="fw-mono" style={{ fontSize: 12, color: "var(--ember)" }}>
+                  {topMunicipios.find((m) => m.municipio === municipioSeleccionado)?.incendios ?? 0} incendios registrados en {municipioSeleccionado}
+                </span>
+              )}
+            </div>
             <ResponsiveContainer width="100%" height={150}>
-              <BarChart data={topMunicipios} layout="vertical" margin={{ left: 10 }}>
+              <BarChart
+                data={municipioSeleccionado ? topMunicipios.filter((m) => m.municipio === municipioSeleccionado) : topMunicipios}
+                layout="vertical"
+                margin={{ left: 10 }}
+              >
                 <CartesianGrid stroke="#333C29" horizontal={false} />
                 <XAxis type="number" stroke="#8F9680" fontSize={10} tickLine={false} axisLine={false} />
                 <YAxis dataKey="municipio" type="category" stroke="#8F9680" fontSize={10.5} width={120} tickLine={false} axisLine={false} />
