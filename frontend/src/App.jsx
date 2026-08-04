@@ -10,6 +10,8 @@ import {
 } from "lucide-react";
 import { api } from "./api";
 import "./App.css";
+import { MapContainer, TileLayer, CircleMarker, Popup, useMap } from "react-leaflet";
+import "leaflet/dist/leaflet.css";
 
 const NAV = [
   { key: "dashboard", label: "Panel general", icon: Flame },
@@ -57,6 +59,41 @@ export default function App() {
   const [reportes, setReportes] = useState([]);
   const [error, setError] = useState(null);
   const [cargando, setCargando] = useState(true);
+  const [nuevoUsuario, setNuevoUsuario] = useState({ nombre: "", email: "", password: "", rol: "ciudadano" });
+  const [creandoUsuario, setCreandoUsuario] = useState(false);
+  const [mensajeUsuario, setMensajeUsuario] = useState(null);
+
+  const crearUsuario = async (e) => {
+    e.preventDefault();
+    setCreandoUsuario(true);
+    setMensajeUsuario(null);
+    try {
+      await api.registrarUsuario(nuevoUsuario);
+      setMensajeUsuario({ tipo: "ok", texto: "Usuario creado correctamente." });
+      setNuevoUsuario({ nombre: "", email: "", password: "", rol: "ciudadano" });
+    } catch (err) {
+      setMensajeUsuario({ tipo: "error", texto: err.message || "No se pudo crear el usuario." });
+    } finally {
+      setCreandoUsuario(false);
+    }
+  };
+
+  const scrollToId = (id) => {
+    if (!id) {
+      window.scrollTo({ top: 0, behavior: "smooth" });
+      return;
+    }
+    document.getElementById(id)?.scrollIntoView({ behavior: "smooth", block: "start" });
+  };
+
+  const navTargets = { dashboard: null, mapa: "card-mapa", reportes: "card-reportes", estadisticas: "card-estadisticas", usuarios: "card-usuarios", config: null };
+
+  const irASeccion = (key) => {
+    setActive(key);
+    scrollToId(navTargets[key]);
+  };
+
+  const esVisible = (key) => active === "dashboard" || active === key;
 
   const cargarTodo = useCallback(async () => {
     try {
@@ -201,7 +238,7 @@ export default function App() {
           </div>
         </div>
         {NAV.map((n) => (
-          <div key={n.key} className={`fw-nav-item ${active === n.key ? "active" : ""}`} onClick={() => setActive(n.key)}>
+          <div key={n.key} className={`fw-nav-item ${active === n.key ? "active" : ""}`} onClick={() => irASeccion(n.key)}>
             <n.icon size={16} />
             {n.label}
           </div>
@@ -261,32 +298,50 @@ export default function App() {
 
         {/* MAP + ALERTS */}
         <div className="fw-grid-2">
-          <div className="fw-card">
+          <div className="fw-card" id="card-mapa" style={{ display: esVisible("mapa") ? undefined : "none" }}>
             <div className="fw-card-head">
               <div className="fw-card-title"><MapPinned size={16} /> Mapa en vivo — incendios activos</div>
               <div className="fw-mono fw-live-tag"><Radio size={12} /> actualiza cada 30s</div>
             </div>
-            <div className="fw-map">
-              {incendios.map((inc) => {
-                if (inc.lat == null || inc.lng == null) return null;
-                const { x, y } = proyectar(inc.lat, inc.lng);
-                return (
-                  <React.Fragment key={inc.id}>
-                    <div className="fw-map-zone" style={{ left: `${x}%`, top: `${y}%`, background: levelColor[inc.nivel_riesgo], color: levelColor[inc.nivel_riesgo] }}>
-                      <CircleDot size={13} color="#14160F" />
-                    </div>
-                    <div className="fw-map-label" style={{ left: `${x + 2}%`, top: `${y - 4}%` }}>{inc.zona}</div>
-                  </React.Fragment>
-                );
-              })}
-              <div className="fw-map-footer">
-                <span>Querétaro, México</span>
-                <span>{incendios.length} incendios activos en el mapa</span>
-              </div>
+            <div className="fw-map fw-map-real">
+              <MapContainer
+                center={[20.75, -99.9]}
+                zoom={8}
+                scrollWheelZoom={true}
+                style={{ height: "100%", width: "100%", borderRadius: "10px" }}
+              >
+                <TileLayer
+                  attribution='&copy; OpenStreetMap contributors'
+                  url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
+                />
+                {incendios.map((inc) => {
+                  if (inc.lat == null || inc.lng == null) return null;
+                  return (
+                    <CircleMarker
+                      key={inc.id}
+                      center={[inc.lat, inc.lng]}
+                      radius={12}
+                      pathOptions={{
+                        color: levelColor[inc.nivel_riesgo],
+                        fillColor: levelColor[inc.nivel_riesgo],
+                        fillOpacity: 0.85,
+                        weight: 2,
+                      }}
+                    >
+                      <Popup>
+                        <b>{inc.zona}</b><br />
+                        Municipio: {inc.municipio}<br />
+                        Nivel de riesgo: {inc.nivel_riesgo}<br />
+                        Coordenadas: {inc.lat.toFixed(4)}, {inc.lng.toFixed(4)}
+                      </Popup>
+                    </CircleMarker>
+                  );
+                })}
+              </MapContainer>
             </div>
           </div>
 
-          <div className="fw-card">
+          <div className="fw-card" id="card-alertas" style={{ display: esVisible("mapa") ? undefined : "none" }}>
             <div className="fw-card-head">
               <div className="fw-card-title"><ShieldAlert size={16} /> Alertas activas</div>
             </div>
@@ -312,7 +367,7 @@ export default function App() {
 
         {/* TOP MUNICIPIOS + REPORTES */}
         <div className="fw-grid-2">
-          <div className="fw-card">
+          <div className="fw-card" id="card-estadisticas" style={{ display: esVisible("estadisticas") ? undefined : "none" }}>
             <div className="fw-card-head">
               <div className="fw-card-title"><BarChart3 size={16} /> Tendencia y top municipios</div>
               <div className="fw-range-toggle">
@@ -347,17 +402,29 @@ export default function App() {
             </ResponsiveContainer>
           </div>
 
-          <div className="fw-card">
+          <div className="fw-card" id="card-reportes" style={{ display: esVisible("reportes") ? undefined : "none" }}>
             <div className="fw-card-head">
               <div className="fw-card-title"><ClipboardList size={16} /> Reportes recientes</div>
             </div>
             <table className="fw-table">
               <thead>
-                <tr><th>Reportante</th><th>Municipio</th><th>Hora</th><th>Crítico</th><th>Validado</th></tr>
+                <tr><th>Foto</th><th>Reportante</th><th>Municipio</th><th>Hora</th><th>Crítico</th><th>Validado</th></tr>
               </thead>
               <tbody>
                 {reportes.map((r) => (
                   <tr key={r.id}>
+                    <td>
+                      {r.foto ? (
+                        <img
+                          src={`data:image/jpeg;base64,${r.foto}`}
+                          alt="Foto del reporte"
+                          style={{ width: 40, height: 40, borderRadius: 6, objectFit: "cover", cursor: "pointer", border: "1px solid var(--line)" }}
+                          onClick={() => window.open(`data:image/jpeg;base64,${r.foto}`, "_blank")}
+                        />
+                      ) : (
+                        <span style={{ color: "var(--muted)", fontSize: 11 }}>—</span>
+                      )}
+                    </td>
                     <td>{r.nombre_reportante}</td>
                     <td style={{ color: "var(--muted)" }}>{r.municipio}</td>
                     <td className="fw-mono" style={{ color: "var(--muted)" }}>
@@ -384,14 +451,66 @@ export default function App() {
           </div>
         </div>
 
+        {/* CREAR USUARIO */}
+        <div className="fw-card" id="card-usuarios" style={{ marginBottom: 16, display: esVisible("usuarios") ? undefined : "none" }}>
+          <div className="fw-card-head">
+            <div className="fw-card-title"><Users size={16} /> Crear usuario</div>
+          </div>
+          <form onSubmit={crearUsuario} style={{ display: "flex", gap: 10, flexWrap: "wrap", alignItems: "flex-end" }}>
+            <div style={{ flex: "1 1 160px" }}>
+              <label style={{ fontSize: 11, color: "var(--muted)" }}>Nombre</label>
+              <input required value={nuevoUsuario.nombre} onChange={(e) => setNuevoUsuario({ ...nuevoUsuario, nombre: e.target.value })}
+                style={{ width: "100%", padding: "8px 10px", borderRadius: 6, border: "1px solid var(--line)", background: "var(--panel-alt)", color: "var(--text)" }} />
+            </div>
+            <div style={{ flex: "1 1 200px" }}>
+              <label style={{ fontSize: 11, color: "var(--muted)" }}>Correo</label>
+              <input required type="email" value={nuevoUsuario.email} onChange={(e) => setNuevoUsuario({ ...nuevoUsuario, email: e.target.value })}
+                style={{ width: "100%", padding: "8px 10px", borderRadius: 6, border: "1px solid var(--line)", background: "var(--panel-alt)", color: "var(--text)" }} />
+            </div>
+            <div style={{ flex: "1 1 140px" }}>
+              <label style={{ fontSize: 11, color: "var(--muted)" }}>Contraseña</label>
+              <input required type="password" value={nuevoUsuario.password} onChange={(e) => setNuevoUsuario({ ...nuevoUsuario, password: e.target.value })}
+                style={{ width: "100%", padding: "8px 10px", borderRadius: 6, border: "1px solid var(--line)", background: "var(--panel-alt)", color: "var(--text)" }} />
+            </div>
+            <div style={{ flex: "1 1 140px" }}>
+              <label style={{ fontSize: 11, color: "var(--muted)" }}>Rol</label>
+              <select value={nuevoUsuario.rol} onChange={(e) => setNuevoUsuario({ ...nuevoUsuario, rol: e.target.value })}
+                style={{ width: "100%", padding: "8px 10px", borderRadius: 6, border: "1px solid var(--line)", background: "var(--panel-alt)", color: "var(--text)" }}>
+                <option value="ciudadano">Ciudadano</option>
+                <option value="proteccion_civil">Protección Civil</option>
+                <option value="admin">Admin</option>
+              </select>
+            </div>
+            <button type="submit" disabled={creandoUsuario} className="fw-admin-btn" style={{ height: 38 }}>
+              {creandoUsuario ? "Creando..." : "Crear usuario"}
+            </button>
+          </form>
+          {mensajeUsuario && (
+            <div style={{ marginTop: 10, fontSize: 12.5, color: mensajeUsuario.tipo === "ok" ? "var(--green)" : "var(--red)" }}>
+              {mensajeUsuario.texto}
+            </div>
+          )}
+        </div>
+
+        {active === "config" && (
+          <div className="fw-card" style={{ marginBottom: 16 }}>
+            <div className="fw-card-head">
+              <div className="fw-card-title"><Settings size={16} /> Configuración</div>
+            </div>
+            <div style={{ fontSize: 13, color: "var(--muted)" }}>
+              Esta sección está en desarrollo. Próximamente: gestión de roles, notificaciones y parámetros del sistema.
+            </div>
+          </div>
+        )}
+
         {/* ADMIN BAR */}
         <div className="fw-admin-bar">
           <div className="fw-card-title"><Users size={16} /> Administración · Protección Civil</div>
           <div className="fw-admin-actions">
-            <div className="fw-admin-btn"><ShieldAlert size={13} /> Ver alertas</div>
-            <div className="fw-admin-btn"><MapPinned size={13} /> Mapa completo</div>
-            <div className="fw-admin-btn"><Users size={13} /> Usuarios</div>
-            <div className="fw-admin-btn"><Settings size={13} /> Configuración</div>
+            <div className="fw-admin-btn" onClick={() => irASeccion("mapa")}><ShieldAlert size={13} /> Ver alertas</div>
+            <div className="fw-admin-btn" onClick={() => irASeccion("mapa")}><MapPinned size={13} /> Mapa completo</div>
+            <div className="fw-admin-btn" onClick={() => irASeccion("usuarios")}><Users size={13} /> Usuarios</div>
+            <div className="fw-admin-btn" onClick={() => scrollToId(null)}><Settings size={13} /> Configuración</div>
           </div>
         </div>
       </main>

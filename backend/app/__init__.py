@@ -45,13 +45,15 @@ def create_app():
     jwt.init_app(app)
     limiter.init_app(app)
 
-    # Prometheus
     metrics = PrometheusMetrics(app, group_by="endpoint")
-    metrics.info(
-        "firewatch_api_info",
-        "Información de la API FireWatch QRO",
-        version="1.0.0",
-    )
+    try:
+        metrics.info(
+            "firewatch_api_info",
+            "Información de la API FireWatch QRO",
+            version="1.0.0",
+        )
+    except ValueError:
+        pass
 
     # Registrar Blueprints
     app.register_blueprint(incendios.bp)

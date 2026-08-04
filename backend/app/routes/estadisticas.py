@@ -91,8 +91,8 @@ def tendencia_incendios():
 
     resultados = (
         db.session.query(
-            func.date_format(Incendio.fecha_deteccion,
-                             "%Y-%m").label("periodo"),
+            func.to_char(Incendio.fecha_deteccion,
+                             "YYYY-MM").label("periodo"),
             func.count(Incendio.id).label("incendios"),
         )
         .filter(Incendio.fecha_deteccion >= desde)
